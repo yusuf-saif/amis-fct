@@ -11,10 +11,14 @@ export function DesktopNavigation({ items, pathname }: { items: NavItem[]; pathn
 
         if (item.children?.length) {
           return (
-            <details className="group relative" key={item.label}>
+            <details className="group relative" key={item.label} onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                (event.currentTarget as HTMLDetailsElement).open = false;
+              }
+            }}>
               <summary
                 className={cx(
-                  "flex h-11 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-medium text-ink-secondary transition hover:bg-brand-green-50 hover:text-brand-green-800",
+                  "flex h-11 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-medium text-ink-secondary transition hover:bg-brand-green-50 hover:text-brand-green-800 focus-visible:shadow-focus",
                   isActive && "bg-brand-green-50 text-brand-green-700",
                 )}
               >
@@ -23,7 +27,7 @@ export function DesktopNavigation({ items, pathname }: { items: NavItem[]; pathn
               </summary>
               <div className="absolute left-0 top-full z-[var(--z-dropdown)] mt-3 min-w-[220px] rounded-2xl border border-surface-line bg-surface-page p-2 shadow-public3">
                 {item.children.map((child) => (
-                  <Link className="block rounded-xl px-4 py-3 text-sm text-ink-secondary transition hover:bg-brand-green-50 hover:text-brand-green-800" href={child.href} key={child.href}>
+                  <Link aria-current={pathname === child.href ? "page" : undefined} className={cx("block rounded-xl px-4 py-3 text-sm text-ink-secondary transition hover:bg-brand-green-50 hover:text-brand-green-800 focus-visible:shadow-focus", pathname === child.href && "bg-brand-green-50 text-brand-green-700")} href={child.href} key={child.href}>
                     {child.label}
                   </Link>
                 ))}
@@ -37,7 +41,7 @@ export function DesktopNavigation({ items, pathname }: { items: NavItem[]; pathn
             <Link
               aria-current={isActive ? "page" : undefined}
               className={cx(
-                "flex h-11 items-center rounded-full px-4 text-sm font-medium text-ink-secondary transition hover:bg-brand-green-50 hover:text-brand-green-800",
+                "flex h-11 items-center rounded-full px-4 text-sm font-medium text-ink-secondary transition hover:bg-brand-green-50 hover:text-brand-green-800 focus-visible:shadow-focus",
                 isActive && "bg-brand-green-50 text-brand-green-700",
               )}
               href={item.href}

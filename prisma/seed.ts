@@ -66,14 +66,20 @@ async function main() {
         academicYear: "2026/2027",
       },
     },
-    update: {},
+    update: {
+      tier: DuesTier.TIER_3,
+      amountDue: 120000,
+      amountPaid: 120000,
+      status: DuesStatus.PAID,
+      notes: "Seeded sample dues record.",
+    },
     create: {
       schoolId: school.id,
       academicYear: "2026/2027",
       tier: DuesTier.TIER_3,
       amountDue: 120000,
-      amountPaid: 60000,
-      status: DuesStatus.PARTIAL,
+      amountPaid: 120000,
+      status: DuesStatus.PAID,
       notes: "Seeded sample dues record.",
     },
   });

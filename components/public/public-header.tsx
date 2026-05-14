@@ -24,7 +24,7 @@ export function PublicHeader() {
 
         <div className="flex items-center gap-3">
           <DesktopNavigation items={publicNavigation} pathname={pathname} />
-          <Button className="hidden md:inline-flex" href="/about/membership" size="sm">Subscribe</Button>
+          <Button ariaLabel="Subscribe to AMIS FCT updates" className="hidden md:inline-flex" href="/about/membership" size="sm">Subscribe</Button>
           <MobileNavigation />
         </div>
       </div>

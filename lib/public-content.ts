@@ -16,9 +16,23 @@ export const publicNavigation: NavItem[] = [
       { label: "Membership", href: "/about/membership" },
     ],
   },
-  { label: "Schools" },
-  { label: "News & Events" },
-  { label: "Resources" },
+  {
+    label: "Schools",
+    href: "/schools",
+    children: [
+      { label: "Directory", href: "/schools" },
+      { label: "Register Your School", href: "/register" },
+    ],
+  },
+  {
+    label: "News & Events",
+    href: "/news",
+    children: [
+      { label: "News", href: "/news" },
+      { label: "Events", href: "/events" },
+    ],
+  },
+  { label: "Resources", href: "/resources" },
   { label: "Contact" },
 ];
 
@@ -28,11 +42,12 @@ export const mobileNavigation = [
   { label: "Leadership", href: "/about/leadership" },
   { label: "Governance", href: "/about/governance" },
   { label: "Membership", href: "/about/membership" },
-  { label: "Schools", href: "/" },
-  { label: "News", href: "/" },
-  { label: "Events", href: "/" },
-  { label: "Resources", href: "/" },
-  { label: "Contact", href: "/" },
+  { label: "Schools", href: "/schools" },
+  { label: "Register Your School", href: "/register" },
+  { label: "News", href: "/news" },
+  { label: "Events", href: "/events" },
+  { label: "Resources", href: "/resources" },
+  { label: "Contact" },
 ];
 
 export const aboutSubNavigation = [
@@ -55,25 +70,25 @@ export const footerColumns = [
   {
     heading: "Schools",
     links: [
-      { label: "School Directory", href: "/" },
-      { label: "Register Your School", href: "/" },
+      { label: "School Directory", href: "/schools" },
+      { label: "Register Your School", href: "/register" },
     ],
   },
   {
     heading: "News & Media",
     links: [
-      { label: "Latest News", href: "/" },
-      { label: "Events", href: "/" },
-      { label: "Photo Gallery", href: "/" },
+      { label: "Latest News", href: "/news" },
+      { label: "Events", href: "/events" },
+      { label: "Photo Gallery", href: "/about" },
     ],
   },
   {
     heading: "Resources",
     links: [
-      { label: "Circulars", href: "/" },
-      { label: "Academic Calendar", href: "/" },
-      { label: "Curriculum Guides", href: "/" },
-      { label: "Forms", href: "/" },
+      { label: "Circulars", href: "/resources" },
+      { label: "Academic Calendar", href: "/resources" },
+      { label: "Curriculum Guides", href: "/resources" },
+      { label: "Forms", href: "/resources" },
     ],
   },
 ];

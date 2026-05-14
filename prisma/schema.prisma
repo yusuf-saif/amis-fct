@@ -14,6 +14,7 @@ enum AdminRole {
 
 enum SchoolStatus {
   PENDING
+  MORE_INFO_REQUESTED
   APPROVED
   REJECTED
   REMOVED
@@ -131,6 +132,7 @@ model School {
   ndprConsent         Boolean          @default(false)
   status              SchoolStatus     @default(PENDING)
   rejectionReason     String?
+  moreInfoRequestMessage String?
   submittedAt         DateTime         @default(now())
   approvedAt          DateTime?
   removedAt           DateTime?
@@ -192,6 +194,10 @@ model Event {
   description          String
   location             String
   mapUrl               String?
+  attachmentUrl        String?
+  attachmentFileName   String?
+  attachmentFileType   String?
+  attachmentFileSizeBytes Int?
   eventType            EventType
   startAt              DateTime
   endAt                DateTime?

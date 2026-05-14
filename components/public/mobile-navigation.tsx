@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/public/button";
 import { cx } from "@/lib/cx";
@@ -11,10 +11,36 @@ import { mobileNavigation } from "@/lib/public-content";
 export function MobileNavigation() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!open) {
+      triggerRef.current?.focus();
+      document.body.style.removeProperty("overflow");
+      return;
+    }
+
+    closeRef.current?.focus();
+    document.body.style.setProperty("overflow", "hidden");
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.removeProperty("overflow");
+    };
+  }, [open]);
 
   return (
     <div className="md:hidden">
@@ -24,6 +50,7 @@ export function MobileNavigation() {
         aria-label={open ? "Close menu" : "Open menu"}
         className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-line bg-surface-page text-lg text-brand-green-800 transition hover:bg-brand-green-50"
         onClick={() => setOpen((value) => !value)}
+        ref={triggerRef}
         type="button"
       >
         {open ? "×" : "☰"}
@@ -44,7 +71,7 @@ export function MobileNavigation() {
                 <p className="text-xs font-semibold uppercase tracking-[var(--letter-spacing-caps)] text-brand-green-700">AMIS FCT</p>
                 <p className="mt-1 text-sm text-ink-secondary">Public navigation</p>
               </div>
-              <button aria-label="Close menu" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-line" onClick={() => setOpen(false)} type="button">
+              <button aria-label="Close menu" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-line focus-visible:shadow-focus" onClick={() => setOpen(false)} ref={closeRef} type="button">
                 ×
               </button>
             </div>
@@ -56,7 +83,15 @@ export function MobileNavigation() {
 
             <nav className="space-y-2" role="navigation">
               {mobileNavigation.map((item) => {
-                const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+                const active = item.href ? pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`)) : false;
+
+                if (!item.href) {
+                  return (
+                    <span className="flex min-h-[52px] items-center rounded-xl px-4 text-base font-medium text-ink-muted" key={item.label}>
+                      {item.label}
+                    </span>
+                  );
+                }
 
                 return (
                   <Link
@@ -75,7 +110,7 @@ export function MobileNavigation() {
             </nav>
 
             <div className="mt-auto space-y-3 border-t border-surface-line pt-5">
-              <Button className="w-full" href="/about/membership">Register Your School</Button>
+              <Button ariaLabel="Register your school with AMIS FCT" className="w-full" href="/about/membership">Register Your School</Button>
               <p className="text-xs leading-relaxed text-ink-muted">Some public content sections are intentionally static in this phase while layout and design foundations are established.</p>
             </div>
           </div>
