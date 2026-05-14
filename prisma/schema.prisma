@@ -1,0 +1,306 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  EDITOR
+}
+
+enum SchoolStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REMOVED
+}
+
+enum SchoolArm {
+  NURSERY
+  PRIMARY
+  JSS
+  SSS
+}
+
+enum SchoolLevel {
+  PRIMARY
+  SECONDARY
+  COMBINED
+}
+
+enum DuesTier {
+  TIER_1
+  TIER_2
+  TIER_3
+  TIER_4
+}
+
+enum DuesStatus {
+  PAID
+  PARTIAL
+  UNPAID
+}
+
+enum NewsCategory {
+  OFFICIAL_CIRCULAR
+  PRESS_RELEASE
+  GENERAL_NEWS
+  ACHIEVEMENT
+}
+
+enum PublishingStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+enum EventType {
+  STUDENT_COMPETITION
+  TEACHER_PD
+  ASSOCIATION_MEETING
+  PUBLIC_EVENT
+}
+
+enum ResourceCategory {
+  CIRCULAR
+  ACADEMIC_CALENDAR
+  CURRICULUM_GUIDE
+  FORM_TEMPLATE
+  GOVERNANCE_DOCUMENT
+}
+
+enum NotificationStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  FAILED
+  CANCELLED
+}
+
+model AdminUser {
+  id                  String         @id @default(cuid())
+  email               String         @unique
+  passwordHash        String
+  name                String?
+  role                AdminRole
+  isActive            Boolean        @default(true)
+  failedLoginAttempts Int            @default(0)
+  lockedUntil         DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  auditLogs           AuditLog[]     @relation("AuditActor")
+  authoredNewsPosts   NewsPost[]
+  sessions            AdminSession[]
+  notifications       Notification[]
+}
+
+model AdminSession {
+  id          String    @id @default(cuid())
+  adminUserId String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+  @@index([expiresAt])
+}
+
+model School {
+  id                  String           @id @default(cuid())
+  name                String
+  slug                String           @unique
+  areaCouncil         String
+  level               SchoolLevel
+  arms                SchoolArm[]
+  principalName       String
+  email               String
+  phone               String
+  address             String
+  yearEstablished     Int
+  description         String
+  photoUrl            String?
+  arabicName          String?
+  googleMapUrl        String?
+  ndprConsent         Boolean          @default(false)
+  status              SchoolStatus     @default(PENDING)
+  rejectionReason     String?
+  submittedAt         DateTime         @default(now())
+  approvedAt          DateTime?
+  removedAt           DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  duesRecords         DuesRecord[]
+
+  @@index([status])
+  @@index([areaCouncil])
+  @@index([level])
+}
+
+model DuesRecord {
+  id             String      @id @default(cuid())
+  schoolId       String
+  academicYear   String
+  tier           DuesTier
+  amountDue      Int
+  amountPaid     Int         @default(0)
+  status         DuesStatus  @default(UNPAID)
+  paymentDate    DateTime?
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  school         School      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([schoolId, academicYear])
+  @@index([academicYear, status])
+}
+
+model NewsPost {
+  id               String           @id @default(cuid())
+  title            String
+  slug             String           @unique
+  excerpt          String
+  body             String
+  category         NewsCategory
+  featuredImageUrl String?
+  attachmentUrl    String?
+  status           PublishingStatus @default(DRAFT)
+  publishedAt      DateTime?
+  scheduledFor     DateTime?
+  metaTitle        String?
+  metaDescription  String?
+  authorId         String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  author           AdminUser?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([category])
+  @@index([status, publishedAt])
+}
+
+model Event {
+  id                   String           @id @default(cuid())
+  title                String
+  slug                 String           @unique
+  summary              String
+  description          String
+  location             String
+  mapUrl               String?
+  eventType            EventType
+  startAt              DateTime
+  endAt                DateTime?
+  registrationContact  String?
+  status               PublishingStatus @default(DRAFT)
+  publishedAt          DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  galleryAlbums        GalleryAlbum[]
+
+  @@index([eventType])
+  @@index([status, startAt])
+}
+
+model ResourceFile {
+  id              String           @id @default(cuid())
+  title           String
+  slug            String           @unique
+  category        ResourceCategory
+  fileUrl         String
+  fileName        String
+  fileType        String
+  fileSizeBytes   Int
+  circularNumber  String?
+  description     String?
+  publishedAt     DateTime?
+  status          PublishingStatus @default(DRAFT)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([category, status])
+}
+
+model GalleryAlbum {
+  id            String           @id @default(cuid())
+  title         String
+  slug          String           @unique
+  summary       String?
+  coverImageUrl String
+  photoUrls     Json
+  eventDate     DateTime
+  eventId       String?
+  status        PublishingStatus @default(DRAFT)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  event         Event?           @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([eventId])
+  @@index([status, eventDate])
+}
+
+model ExecutiveMember {
+  id          String   @id @default(cuid())
+  fullName    String
+  title       String
+  photoUrl    String?
+  shortBio    String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+model ContactEnquiry {
+  id           String   @id @default(cuid())
+  fullName     String
+  email        String
+  phone        String?
+  subject      String
+  message      String
+  ndprConsent  Boolean
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isRead, createdAt])
+}
+
+model Notification {
+  id                  String              @id @default(cuid())
+  subject             String
+  body                String
+  audienceDescription String
+  audienceFilters     Json
+  attachmentUrl       String?
+  status              NotificationStatus  @default(DRAFT)
+  scheduledFor        DateTime?
+  sentAt              DateTime?
+  recipientCount      Int                 @default(0)
+  deliverySummary     Json?
+  senderId            String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  sender              AdminUser?          @relation(fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([status, scheduledFor])
+}
+
+model AuditLog {
+  id               String    @id @default(cuid())
+  actorAdminUserId String?
+  action           String
+  entityType       String
+  entityId         String?
+  metadata         Json?
+  createdAt        DateTime  @default(now())
+  actor            AdminUser? @relation("AuditActor", fields: [actorAdminUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorAdminUserId, createdAt])
+  @@index([entityType, entityId])
+}
