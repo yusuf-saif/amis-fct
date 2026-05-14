@@ -68,7 +68,8 @@ A well-executed website rebuild will:
 
 ### Non-Goals (v1)
 
-- Parent/school-facing login portal — public users do not authenticate (admin login is in scope)
+- Parent/student-facing login portal — public users do not authenticate (admin login is in scope)
+- School self-service portal — schools cannot log in to edit their own listings or view their dues status
 - Online payments or dues payment processing
 - E-learning or content behind a paywall
 - Integration with school management systems or government databases
@@ -89,7 +90,7 @@ Five primary public-facing personas are defined in detail in [02-stakeholders-pe
 | Bilkisu — Principal | Access official circulars | Resources > Circulars + News |
 | Garba — Government Official | Verify governance and credibility | About/Leadership + Governance Downloads |
 
-**Admin persona (internal):** Association staff (Secretary General, PRO, IT Committee, Dues Manager) who manage content, approve school registrations, and track dues via the admin dashboard.
+**Admin persona (internal):** Association staff (Secretary General, PRO, IT Committee) who manage content, approve school registrations, track dues, and send notifications via the admin dashboard.
 
 ---
 
@@ -126,7 +127,7 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | REQ-ABT-01 | About overview page at /about containing: Our History, Vision & Mission, Core Values. Content editable by super admin via admin dashboard. | Must |
 | REQ-ABT-02 | Leadership page at /about/leadership. Displays current executive council as a responsive grid: portrait photo, full name, official title, optional short bio. Admin-editable via admin dashboard. | Must |
 | REQ-ABT-03 | Governance page at /about/governance. Includes: governance structure description, and at minimum 1 downloadable document (PDF) — constitution or official registration certificate. Document upload managed via admin dashboard. | Must |
-| REQ-ABT-04 | Membership page at /about/membership describing member school criteria, benefits, and a CTA linking to /schools/register. | Should |
+| REQ-ABT-04 | Membership page at /about/membership describing member school criteria, benefits, and a CTA linking to /register. | Should |
 | REQ-ABT-05 | All About sub-pages display breadcrumb navigation. | Must |
 
 ---
@@ -156,8 +157,8 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 
 | Req ID | Requirement | Priority |
 | --- | --- | --- |
-| REQ-REG-01 | Public registration form at /schools/register. Accessible from the school directory page and the global navigation Schools dropdown. | Must |
-| REQ-REG-02 | Form fields: school name (required), area council (required, dropdown — 6 FCT councils), arms operated (required, multi-select checkboxes: Nursery, Primary, JSS, SSS — at least one required), address (required), phone (required), email (required), principal name (required), short description (required, max 300 words), school photo (required, JPG/PNG, max 5MB). | Must |
+| REQ-REG-01 | Public registration form at /register. Accessible from the school directory page and the global navigation Schools dropdown. | Must |
+| REQ-REG-02 | Form fields: school name (required), area council (required, dropdown — 6 FCT councils), arms operated (required, multi-select checkboxes: Nursery, Primary, JSS, SSS — at least one required), principal name (required), contact email (required), contact phone (required), physical address (required), year established (required), short description (required, max 300 words), school photo (required, JPG/PNG, max 5MB). | Must |
 | REQ-REG-03 | NDPR consent checkbox required before submission. Text: "I agree that my submitted data is collected and stored according to our [Privacy Policy]." | Must |
 | REQ-REG-04 | Spam protection: honeypot field + reCAPTCHA v3. | Must |
 | REQ-REG-05 | On successful submission: on-page success message shown; acknowledgement email sent to the school's submitted email address within 5 minutes; admin receives a notification in the dashboard. | Must |
@@ -174,9 +175,10 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | --- | --- | --- |
 | REQ-ARG-01 | Admin > Schools > Pending lists all applications with Pending status, sorted by submission date. Shows: school name, area council, arms, submitted date, "Review" button. | Must |
 | REQ-ARG-02 | Application detail page shows all submitted fields plus the uploaded photo. | Must |
-| REQ-ARG-03 | "Approve" action: sets status to Approved, makes school live in public directory immediately, sends approval email to school, creates audit log entry. | Must |
-| REQ-ARG-04 | "Reject" action: requires a rejection reason (text field, required); sets status to Rejected; sends rejection email to school including the reason; creates audit log entry. | Must |
-| REQ-ARG-05 | Admin > Schools lists all Approved schools with Edit and Remove actions. Edit opens a pre-populated form. Remove requires confirmation and is logged in the audit trail. | Must |
+| REQ-ARG-03 | "Approve" action: sets status to Approved, makes school live in public directory immediately, sends welcome email to school, creates audit log entry. | Must |
+| REQ-ARG-04 | "Request More Info" action: admin composes a message with specific questions (text field, required); email sent to school's registered address; application status remains Pending; action logged in audit trail. | Must |
+| REQ-ARG-05 | "Reject" action: requires a rejection reason (text field, required); sets status to Rejected; sends rejection email to school including the reason; creates audit log entry. | Must |
+| REQ-ARG-06 | Admin > Schools lists all Approved schools with Edit and Remove actions. Edit opens a pre-populated form. Remove requires confirmation and is logged in the audit trail. | Must |
 
 ---
 
@@ -192,8 +194,9 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | REQ-NEWS-04 | Individual post page at /news/[slug] with: title, date, category badge, author, featured image, rich text body, PDF attachment (optional), share buttons (WhatsApp, Facebook, Twitter/X). | Must |
 | REQ-NEWS-05 | "Official Circular" category posts must support a file attachment field (PDF). Attachment rendered as a prominent download button labelled "Download Circular (PDF, X KB)". | Must |
 | REQ-NEWS-06 | Related posts (3 items, same category or tags) shown at bottom of each post. | Should |
-| REQ-NEWS-07 | News posts managed via admin dashboard. Editor role can: create, edit, preview, publish, unpublish, delete posts. | Must |
-| REQ-NEWS-08 | Post images lazy-loaded and served in WebP format. Max width 1200px. | Must |
+| REQ-NEWS-07 | News posts managed via admin dashboard. Editor role can: create, edit, preview, publish, schedule, unpublish, delete posts. Admin content fields: title, category, featured image, rich text body, tags, meta title, meta description. | Must |
+| REQ-NEWS-08 | Post status options: Draft / Published / Scheduled (with date + time picker). Auto-save draft every 30 seconds. Preview mode shows the post exactly as it will appear publicly before publishing. | Must |
+| REQ-NEWS-09 | Post images lazy-loaded and served in WebP format. Max width 1200px. | Must |
 
 ---
 
@@ -209,7 +212,8 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | REQ-EVT-04 | Individual event detail page at /events/[slug]. Contains: title, date/time, end date/time, location (with map link), event type badge, full description, registration info/contact, share buttons (WhatsApp, Facebook). | Must |
 | REQ-EVT-05 | "Add to Calendar" button on event detail page downloads a .ics file pre-populated with event title, date/time, and location. | Should |
 | REQ-EVT-06 | Past events archive at /events/archive. Same listing layout; sorted by start date descending. | Should |
-| REQ-EVT-07 | Events managed via admin dashboard. Admin/Editor can create, edit, publish, and delete events. Fields: title, start date/time, end date/time, location, event type, description (rich text), registration info, publish toggle. | Must |
+| REQ-EVT-07 | Events managed via admin dashboard. Admin/Editor can create, edit, publish, archive, and delete events. Fields: title, event type, start/end date + time, location, description (rich text), registration contact info. | Must |
+| REQ-EVT-08 | Event status options: Draft / Published / Archived. .ics calendar file auto-generated per event; served as the download behind the "Add to Calendar" button on the public event detail page. | Must |
 
 ---
 
@@ -220,11 +224,11 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | Req ID | Requirement | Priority |
 | --- | --- | --- |
 | REQ-RES-01 | Resources hub at /resources with 4 category cards linking to sub-sections. | Must |
-| REQ-RES-02 | Circulars at /resources/circulars. Lists all circulars sorted by date (newest first). Each entry: title, circular number, date, file type/size, Download button. | Must |
+| REQ-RES-02 | Circulars at /resources/circulars. Lists all circulars sorted by date (newest first). Each entry: title, circular number (optional, e.g., "Circular 12/2026"), date, file type, file size, Download button. | Must |
 | REQ-RES-03 | Academic Calendar at /resources/academic-calendar. Current year's calendar as downloadable PDF with prominent download CTA. Previous year accessible in archive list below. | Must |
 | REQ-RES-04 | Curriculum Guides at /resources/curriculum. Files grouped by subject and school level. Each: title, subject, level, date, file size, Download button. | Should |
 | REQ-RES-05 | Forms & Templates at /resources/forms. Each: form name, intended use, date, file size, Download button. | Should |
-| REQ-RES-06 | All resource files uploaded and managed via admin dashboard. File size limit: 10MB per file. All files ≤5MB where possible. File size displayed next to download button. | Must |
+| REQ-RES-06 | All resource files uploaded and managed via admin dashboard. Admin upload fields: title, category (dropdown), optional circular number (for Circulars category), date. File size limit: 10MB per file; file size auto-detected on upload and displayed next to the download button on the public page. | Must |
 | REQ-RES-07 | File downloads tracked as analytics events (filename + category). | Should |
 
 ---
@@ -239,7 +243,7 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | REQ-GAL-02 | Album detail page at /gallery/[album-slug]. Responsive photo grid. Click/tap opens lightbox with full-size image and left/right navigation. Keyboard-accessible (arrow keys, Escape to close). | Should |
 | REQ-GAL-03 | Gallery images lazy-loaded; thumbnails ≤100KB; served in WebP; Album page loads ≤4 seconds on 3G. | Should |
 | REQ-GAL-04 | Videos section (optional): embeds YouTube videos from association's channel. No self-hosted video. | Could |
-| REQ-GAL-05 | Gallery managed via admin dashboard. Admin can: create new album (title, cover, date), upload multiple photos, set alt text per image. | Should |
+| REQ-GAL-05 | Gallery managed via admin dashboard. Admin can: create album (title, cover photo, date, optional linked Event record), bulk upload multiple photos per album, set alt text per photo. | Should |
 
 ---
 
@@ -277,7 +281,7 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | --- | --- | --- |
 | REQ-ADM-01 | Admin login page at /admin/login. Accepts email + password. Successful login creates a server-side session; failed login shows generic error; account locked after 5 consecutive failures for 15 minutes. | Must |
 | REQ-ADM-02 | Admin dashboard home shows summary stats: pending school applications count, dues summary (paid/partial/unpaid counts for current year), unread contact enquiries count, links to each section. | Must |
-| REQ-ADM-03 | Three roles: Super Admin (full access), Editor (news, events, resources, gallery — no school/dues/user management), Dues Manager (school list and dues only). Role-based access enforced server-side. | Must |
+| REQ-ADM-03 | Two roles: Super Admin (full access — schools, dues, notifications, users, content, audit log), Editor (news, events, resources, gallery, and leadership page only — no school approval, dues, notification, or user management). Role-based access enforced server-side. | Must |
 | REQ-ADM-04 | All admin routes return 401/redirect to login if accessed without a valid session. Admin paths are never linked from the public site. | Must |
 | REQ-ADM-05 | Session expires after 30 minutes of inactivity; user redirected to /admin/login with "Session expired" message. | Must |
 | REQ-ADM-06 | All admin actions (create, update, delete, approve, reject) are written to an immutable audit log: timestamp, admin user, action type, entity type, entity ID. | Must |
@@ -293,19 +297,37 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 | Req ID | Requirement | Priority |
 | --- | --- | --- |
 | REQ-DUE-01 | Each school record stores its arms: Nursery, Primary, JSS, SSS (set during registration, editable by admin). | Must |
-| REQ-DUE-02 | Dues tier derived automatically from highest arm present: SSS → Tier 1; JSS (no SSS) → Tier 2; Primary (no JSS/SSS) → Tier 3; Nursery only → Tier 4. Tier recalculates if admin updates arms. | Must |
+| REQ-DUE-02 | Dues tier derived automatically from highest arm present: Nursery only → Tier 1 (lowest); Primary highest arm → Tier 2; JSS highest arm → Tier 3; SSS present → Tier 4 (highest). Tier recalculates automatically if admin updates a school's arms. | Must |
 | REQ-DUE-03 | Super Admin can set dues amounts per tier per academic year via Admin > Dues > Settings. Amounts are not hard-coded. A new year's amounts can be set independently of prior years. | Must |
-| REQ-DUE-04 | Admin > Dues displays all approved schools in a table: school name, area council, arms, tier, dues amount (from tier settings), payment status, payment date, academic year. | Must |
-| REQ-DUE-05 | Payment status options: Paid / Partial / Unpaid. Admin (Dues Manager or Super Admin) can update status and record payment date and optional notes per school per year. | Must |
+| REQ-DUE-04 | Admin > Dues displays all approved schools in a table: school name, area council (LGA), arms, tier, annual dues amount (from tier settings), amount paid, balance, payment status, payment date, academic year. | Must |
+| REQ-DUE-05 | Payment status options: Paid / Partial / Unpaid. Super Admin (or any admin with dues access) can update status, record payment date, and add optional notes per school per year. | Must |
 | REQ-DUE-06 | Filter controls on dues view: Academic Year (dropdown), Payment Status, Dues Tier. Filters apply without page reload. | Must |
 | REQ-DUE-07 | Summary strip at top of dues view: Total Collected (₦), Total Outstanding (₦), count of schools by status (X Paid / Y Partial / Z Unpaid), for the selected academic year. | Must |
-| REQ-DUE-08 | Export to CSV: columns — School Name, Area Council, Arms, Dues Tier, Dues Amount, Payment Status, Payment Date, Academic Year. Exports currently-filtered rows. | Must |
-| REQ-DUE-09 | "Active Member" badge: public school cards and profiles display badge when payment status is Paid for current year. Badge display is controlled by a global toggle in admin settings. | Should |
+| REQ-DUE-08 | Export to CSV: columns — School Name, Area Council (LGA), Arms, Dues Tier, Annual Dues Amount, Amount Paid, Balance, Payment Status, Payment Date, Academic Year. Exports currently-filtered rows. | Must |
+| REQ-DUE-09 | Green "Active Member" badge: public school cards and profiles display this badge when payment status is Paid for the current year. Badge display controlled by a global toggle in admin settings. Amber "Dues Outstanding" indicator: visible in the admin dashboard only — never shown on the public directory. | Should |
 | REQ-DUE-10 | All dues status updates are written to the audit log (admin user, school, status change, timestamp). | Must |
 
 ---
 
-### 5.14 SEO & Analytics
+### 5.14 Notification System
+
+**Purpose:** Enable Super Admin to compose and send targeted email notifications to member schools directly from the admin dashboard, replacing WhatsApp-based communications with an auditable, delivery-tracked channel.
+
+| Req ID | Requirement | Priority |
+| --- | --- | --- |
+| REQ-NOT-01 | Notification composer accessible to Super Admin only from the admin dashboard. Fields: subject line (required), message body (rich text editor — headings, lists, bold/italic, links), optional PDF attachment. | Must |
+| REQ-NOT-02 | Audience selector options: All member schools; By Area Council / LGA (multi-select, all 6 FCT councils); By school arm (e.g., all schools operating SSS); By payment status (Paid / Partial / Unpaid); Individual school (search by name). Multiple filters can be combined. | Must |
+| REQ-NOT-03 | Audience preview: before sending, shows count of matching recipient schools and a sample list (first 5 names). Updates live as selection changes. | Must |
+| REQ-NOT-04 | Send options: Send Now or Schedule (date + time picker). Scheduled notifications appear in a "Scheduled" queue and can be edited or cancelled before dispatch. | Must |
+| REQ-NOT-05 | Channel: Email (v1). All recipient schools must have a registered email address — this is enforced at registration. SMS and WhatsApp are explicitly noted as v2 roadmap items. | Must |
+| REQ-NOT-06 | On send: emails dispatched using a transactional email provider (e.g., Resend, Mailgun, or Brevo); delivery status tracked per recipient. | Must |
+| REQ-NOT-07 | Delivery report per notification: total recipients, total delivered, total failed; list of failed email addresses with error reason. Accessible from notification history. | Must |
+| REQ-NOT-08 | Notification history: read-only log of all sent and scheduled notifications. Columns: date sent / scheduled, subject, audience description, sender name, delivery summary. Entries cannot be deleted. | Must |
+| REQ-NOT-09 | All notifications logged in the audit trail: sender, audience criteria, recipient count, timestamp, send status. | Must |
+
+---
+
+### 5.15 SEO & Analytics
 
 | Req ID | Requirement | Priority |
 | --- | --- | --- |
@@ -387,7 +409,7 @@ Full prioritisation documented in [03-feature-moscow.md](03-feature-moscow.md). 
 
 | Requirement | Detail |
 | --- | --- |
-| Access model | Login-protected; role-based (Super Admin / Editor / Dues Manager); no public self-registration |
+| Access model | Login-protected; role-based (Super Admin / Editor); no public self-registration |
 | No-code content editing | All routine content (news, events, resources, schools, leadership, gallery) manageable by non-technical staff without code |
 | Rich text editor | WYSIWYG editor for news post body and event descriptions; supports headings, lists, bold/italic, links, and image embedding |
 | Media management | Image upload with server-side compression and WebP conversion; file storage on CDN or object storage (e.g., Cloudflare R2 or AWS S3) |
@@ -449,7 +471,7 @@ The following content must be supplied by the association by **Week 6** (for ini
 
 1. AMIS FCT holds or can renew control of the amisfct.org domain.
 2. The association has, or will create, an official email address (e.g., `info@amisfct.org`) for form submissions.
-3. A named Content Manager and a named Dues Manager within the association will be trained and responsible for their respective admin dashboard responsibilities post-launch.
+3. A named Super Admin and at least one named Editor within the association will be trained and responsible for admin dashboard operations post-launch.
 4. All seed school data will be supplied in a structured spreadsheet by Week 6.
 5. The association approves the use of Google Maps (free tier) for map embeds. If not, OpenStreetMap (Leaflet) will be substituted.
 6. The project is hosted in a cloud environment; no on-premise server.
@@ -471,6 +493,7 @@ The following content must be supplied by the association by **Week 6** (for ini
 | Dues tier amounts (₦ per tier) | Treasurer / Chairman | Dues settings cannot be configured before launch |
 | Admin user list (emails + roles) | IT Committee | Admin accounts cannot be created before launch |
 | Google Maps API key | Developer | Map embeds non-functional; fallback to static image link |
+| Transactional email provider account (Resend/Mailgun/Brevo) | Developer | Notification system and all automated emails (registration, approval, rejection) non-functional |
 
 ---
 
@@ -501,6 +524,7 @@ The following content must be supplied by the association by **Week 6** (for ini
 - [ ] All public forms functional; submissions arriving at designated inbox and stored in admin
 - [ ] School self-registration form end-to-end tested (submit → admin notified → approve → school live)
 - [ ] Dues management: tier calculation verified for all arm combinations; amounts configured for current year
+- [ ] Notification system: test notification sent and delivery report verified; transactional email provider confirmed
 - [ ] Cookie consent banner live; Privacy Policy page published
 - [ ] Analytics tracking confirmed (page views, form submissions, downloads, registration submissions)
 - [ ] XML sitemap submitted to Google Search Console; /admin excluded
@@ -527,7 +551,7 @@ The following content must be supplied by the association by **Week 6** (for ini
 
 ### Operational
 
-- [ ] Admin dashboard training session completed with content manager, PRO, and dues manager
+- [ ] Admin dashboard training session completed with Super Admin and Editor(s)
 - [ ] Admin user accounts created with correct roles (minimum-privilege)
 - [ ] Hosting backups verified and automated
 - [ ] Editorial calendar for first 3 months agreed
@@ -548,6 +572,7 @@ The following content must be supplied by the association by **Week 6** (for ini
 | Donation / Partnership Page | v1.2 (Month 6) | Revenue/partner channel; no payment processing required in v1.2 |
 | FAQ Page | v1.2 (Month 6) | Reduces inbound enquiry volume as traffic grows |
 | WhatsApp Community Integration | v1.1 (Month 3) | Bridge WhatsApp-native users to the website |
+| SMS / WhatsApp Notification Channel | v1.2 (Month 6) | Extend notification system to SMS and WhatsApp for schools without reliable email access |
 | Dues Payment Reminders (email) | v1.2 (Month 6) | Automated reminders for Unpaid/Partial schools near deadline |
 | Parent / School-Facing Login Portal | v2 (Month 9–12) | Requires auth infrastructure for public users; high effort; high value |
 | Online Dues / Fee Payment | v2 (Month 9–12) | Requires payment gateway + financial compliance work |

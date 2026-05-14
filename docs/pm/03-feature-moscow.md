@@ -86,12 +86,15 @@ Features are scored and categorised using **MoSCoW**:
 
 **Acceptance criteria:**
 
-- Public registration form at `/schools/register`
-- Form fields: school name, area council (dropdown — 6 FCT councils), arms operated (multi-select: Nursery, Primary, JSS, SSS), address, phone, email, principal name, short description (max 300 words), school photo upload (JPG/PNG, max 5MB)
+- Public registration form at `/register`
+- Form fields: school name, area council (dropdown — 6 FCT councils), arms operated (multi-select: Nursery, Primary, JSS, SSS — at least one required), principal name, contact email, contact phone, physical address, year established, short description (max 300 words), school photo upload (JPG/PNG, max 5MB)
 - NDPR consent checkbox required before submission
 - On submission: school receives an acknowledgement email ("Your application is under review"); admin receives an alert notification
 - Admin dashboard shows the application in a **Pending Applications** queue
-- Admin can: view all submitted fields, Approve (school becomes live in directory) or Reject (with a brief reason, emailed to the school's registered email)
+- Admin can: view all submitted fields, then take one of three actions:
+  - **Approve** — school becomes live in the public directory immediately; welcome email sent to school automatically
+  - **Request More Info** — email sent to school with specific questions; application remains Pending
+  - **Reject** — brief reason required; rejection email sent to the school's registered address
 - After approval, admin can edit or remove any school listing at any time
 - Spam / bot protection: honeypot field + reCAPTCHA v3
 
@@ -102,12 +105,14 @@ Features are scored and categorised using **MoSCoW**:
 
 **Acceptance criteria:**
 
-- Blog-style listing page (newest first)
+- Blog-style listing page (newest first); category filter tabs; pagination (10 posts per page)
 - Categories: General News, Official Circular, Press Release, Achievement
-- Individual post pages with title, date, author, body text, images
-- Admin can create/edit/publish/unpublish/delete posts via the admin dashboard
-- Social share buttons (WhatsApp, Facebook, Twitter/X) on each post
-- Pagination (10 posts per page)
+- Individual post pages with title, date, author, body text, images, social share buttons (WhatsApp, Facebook, Twitter/X)
+- Admin content fields: title, category, featured image, rich text body, tags, meta title, meta description
+- Post status: **Draft** / **Published** / **Scheduled** (with date + time picker)
+- Auto-save draft every 30 seconds to prevent data loss
+- Preview mode: admin can view the post as it will appear publicly before publishing
+- Admin can create/edit/preview/publish/schedule/unpublish/delete posts via the admin dashboard
 
 ---
 
@@ -116,12 +121,14 @@ Features are scored and categorised using **MoSCoW**:
 
 **Acceptance criteria:**
 
-- List view of upcoming events (title, date, location, brief description)
+- List view of upcoming events (title, date, location, brief description); filterable by type
+- Event types: Student Competition, Teacher PD, Association Meeting, Public Event
 - Individual event detail page (full description, location, contact for registration)
 - Past events archive
-- Events filterable by type: Student Competition, Teacher PD, Association Meeting, Public Event
-- Admin can create/edit/publish/delete events via the admin dashboard
-- "Add to Calendar" link (.ics download) on event detail pages
+- Admin content fields: title, event type, start/end date + time, location, description (rich text), registration contact info
+- Event status: **Draft** / **Published** / **Archived**
+- .ics calendar file auto-generated per event; "Add to Calendar" download on public event detail page
+- Admin can create/edit/publish/archive/delete events via the admin dashboard
 
 ---
 
@@ -172,9 +179,9 @@ Features are scored and categorised using **MoSCoW**:
 
 - Accessible at `/admin` (or equivalent non-guessable path); HTTPS-only
 - Login with email + password; no public registration; accounts created by the super-admin only
-- User roles: Super Admin (full access), Editor (content only — news, events, resources, gallery), Dues Manager (school list + dues only)
+- User roles: **Super Admin** (full access), **Editor** (news, events, resources, gallery, and leadership page only)
 - Editors can: create/edit/publish/delete news posts, events, resource files, and gallery albums
-- Super Admin can additionally: approve/reject school registration applications, edit/remove school listings, manage dues records, manage admin user accounts
+- Super Admin can additionally: approve/reject/request-more-info on school registration applications, edit/remove school listings, manage dues records, send notifications, manage admin user accounts
 - Session timeout after 30 minutes of inactivity
 - All admin actions logged with timestamp and actor (audit log)
 - Rate-limited login (max 5 attempts before temporary lockout)
@@ -188,18 +195,20 @@ Features are scored and categorised using **MoSCoW**:
 
 - Each school record stores its arm(s): Nursery, Primary, JSS, SSS (set during registration, editable by admin)
 - Dues tier is automatically derived from the highest arm present:
-  - SSS → Tier 1 (highest)
-  - JSS (no SSS) → Tier 2
-  - Primary (no JSS/SSS) → Tier 3
-  - Nursery only → Tier 4 (lowest)
-- Dues amounts per tier are configurable by Super Admin (amounts set by association; not hard-coded)
-- Admin dashboard > Dues Management view shows a table of all approved schools with columns: School Name, Arms, Dues Tier, Annual Dues Amount, Payment Status, Payment Date, Academic Year
+  - Tier 1: Nursery only → lowest amount
+  - Tier 2: Primary (highest arm, no JSS/SSS)
+  - Tier 3: JSS (highest arm, no SSS)
+  - Tier 4: SSS (highest arm) → highest amount
+- Tier recalculates automatically if admin updates a school's arms
+- Dues amounts per tier are configurable by Super Admin per academic year (not hard-coded)
+- Admin dashboard > Dues Management view shows a table of all approved schools with columns: School Name, LGA, Arms, Dues Tier, Annual Dues Amount, Amount Paid, Balance, Payment Status, Payment Date, Academic Year
 - Payment status options: **Paid** / **Partial** / **Unpaid**
-- Admin can update any school's payment status and record the payment date
+- Admin can update any school's payment status, amount paid, and payment date
 - Summary stats visible at top of Dues view: Total Collected (this year), Total Outstanding, Count by status
-- Admin can filter dues view by: Academic Year, Payment Status, Dues Tier
-- Export to CSV (school name, tier, amount, status, year)
-- School directory (public) can display an "Active Member" badge on schools marked Paid for the current year (admin-configurable toggle)
+- Admin can filter dues view by: Academic Year, LGA, Payment Status, Dues Tier
+- Export to CSV (school name, LGA, tier, amount, amount paid, balance, status, year)
+- School directory (public) displays a green **Active Member** badge for schools with Paid status
+- Amber **Dues Outstanding** badge is visible to admin only in the dashboard — not shown on the public directory (association decision)
 
 ---
 
@@ -227,6 +236,30 @@ Features are scored and categorised using **MoSCoW**:
 
 ---
 
+### M15 — Notification System
+
+**Description:** Admin can compose and send targeted email notifications to member schools directly from the dashboard, replacing ad hoc WhatsApp messaging with an auditable, delivery-tracked channel.
+
+**Acceptance criteria:**
+
+- Notification composer accessible from the admin dashboard (Super Admin only)
+- **Audience selector** — admin chooses one or more of:
+  - All member schools
+  - By Area Council / LGA (multi-select: all 6 FCT councils)
+  - By school arm (e.g., all schools operating SSS)
+  - By dues status (e.g., all schools with Unpaid status — for payment reminders)
+  - Individual school (search by name)
+- Audience preview shows the count of matching recipients before send
+- **Composer fields:** subject line, message body (rich text), audience selector, attachment (optional PDF)
+- **Send options:** Send Now or Schedule (date + time picker)
+- On send: delivery initiated; dashboard shows a processing status
+- **Delivery report** per notification: total sent, delivered, failed (with list of failed addresses)
+- **Notification history:** log of all past notifications with: date sent, subject, audience description, sender, delivery stats
+- Email channel only (v1); SMS and WhatsApp noted as v2 roadmap items
+- All notifications logged in the audit trail (sender, audience, timestamp)
+
+---
+
 ## SHOULD HAVE — High Value, Target for v1
 
 ### S1 — Photo & Video Gallery
@@ -234,10 +267,11 @@ Features are scored and categorised using **MoSCoW**:
 
 **Acceptance criteria:**
 
-- Albums organised by event/year
-- Lightbox viewing on desktop; full-screen tap on mobile
+- Albums organised by event/year, sorted newest first on the public gallery page
+- Each album can optionally be linked to an existing Event record (for cross-referencing)
+- Lightbox viewing on desktop (keyboard navigable: arrow keys, Escape); full-screen swipe on mobile
 - Videos embeddable from YouTube (no self-hosted video)
-- Admin can create new albums and upload photos via the admin dashboard
+- Admin can: create album (title, cover photo, linked event, date), bulk upload photos, set alt text per photo
 
 ---
 
@@ -247,10 +281,12 @@ Features are scored and categorised using **MoSCoW**:
 **Acceptance criteria:**
 
 - Categorised file listing: Circulars, Academic Calendar, Curriculum Guides, Forms & Templates
-- Each entry shows: title, date, file type (PDF/DOCX), file size, download button
+- For Circulars: optional circular number field (e.g., "Circular 12/2026") displayed on each entry
+- File size auto-detected on upload; displayed next to each download button
+- Each entry shows: title, circular number (if applicable), date, file type, file size, Download button
 - Sortable by date (newest first)
 - Admin can upload and manage documents via the admin dashboard
-- Files versioned (new upload replaces old, with date)
+- Files versioned (new upload replaces old, with date stamped)
 
 ---
 
@@ -374,6 +410,7 @@ Automated email reminders sent to schools with Unpaid or Partial status as the d
 | School Self-Registration Form | New schools | M | **Must** |
 | Admin Dashboard | Association staff | L | **Must** |
 | Dues Management Module | Treasurer, Sec Gen | M | **Must** |
+| Notification System | Sec Gen, Admin | M | **Must** |
 | Homepage | All | M | **Must** |
 | Mobile-First Design | Fatima, Usman | M | **Must** |
 | News & Announcements | All | S | **Must** |

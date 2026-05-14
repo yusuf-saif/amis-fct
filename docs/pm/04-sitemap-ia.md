@@ -59,7 +59,7 @@ amisfct.org/
 │   │   ├── About the school (short description)
 │   │   ├── "Report incorrect information" link (pre-fills contact form)
 │   │   └── ← Back to Schools Directory
-│   └── /schools/register (School Self-Registration Form — public)
+│   └── /register (School Self-Registration Form — public)
 │       ├── School name, Area Council (dropdown)
 │       ├── Arms operated (multi-select: Nursery, Primary, JSS, SSS)
 │       ├── Address, phone, email, principal name
@@ -132,7 +132,7 @@ The admin dashboard is entirely separate from the public site. It is never linke
 │   ├── /admin/schools (All approved schools — list with edit/remove actions)
 │   ├── /admin/schools/[id]/edit (Edit school details)
 │   └── /admin/schools/pending (Pending registration applications)
-│       └── /admin/schools/pending/[id] (Application detail — Approve / Reject with reason)
+│       └── /admin/schools/pending/[id] (Application detail — Approve / Request More Info / Reject)
 │
 ├── /admin/dues
 │   ├── /admin/dues (Dues management — all schools, filter by year/status/tier)
@@ -160,6 +160,10 @@ The admin dashboard is entirely separate from the public site. It is never linke
 │   └── /admin/gallery/[id]/edit (Edit album / manage photos)
 │
 ├── /admin/leadership (Edit executive council members)
+│
+├── /admin/notifications (Super Admin only — notification system)
+│   ├── /admin/notifications (Compose + send / schedule notifications; view history)
+│   └── /admin/notifications/[id] (Delivery report for a specific notification)
 │
 ├── /admin/enquiries (Contact form submissions — read-only inbox)
 │
@@ -243,7 +247,7 @@ Home > Resources > Circulars
 | Governance | `/about/governance` | |
 | School Directory | `/schools` | Approved schools only |
 | School Profile | `/schools/govt-model-islamic-secondary-kuje` | Slug from school name |
-| School Registration | `/schools/register` | Public form |
+| School Registration | `/register` | Public form |
 | News Listing | `/news` | |
 | News Post | `/news/amis-fct-quiz-competition-2026` | Slug from post title |
 | Events Listing | `/events` | |
@@ -379,7 +383,7 @@ Google "Islamic school Kubwa Abuja"
 
 ```text
 /schools (directory) → "Register Your School" link at bottom
-→ /schools/register (fill form + upload photo)
+→ /register (fill form + upload photo)
 → Submit → acknowledgement message + confirmation email to school
 [Admin receives notification in dashboard]
 [Admin → /admin/schools/pending → reviews application]
@@ -394,7 +398,8 @@ Google "Islamic school Kubwa Abuja"
 → /admin/dashboard (pending applications badge)
 → /admin/schools/pending
 → /admin/schools/pending/[id] (view all submitted details)
-→ Approve → school appears in public directory immediately
+→ Approve → school appears in public directory immediately; welcome email sent to school
+   OR Request More Info → compose message → email sent; application stays Pending
    OR Reject → enter reason → rejection email sent to school
 ```
 
@@ -423,4 +428,18 @@ Google "AMIS FCT Nigeria"
 → Homepage → About → /about
 → /about/leadership (council bios)
 → /about/governance (download constitution PDF)
+```
+
+### Admin Sending a Dues Reminder Notification
+
+```text
+/admin/login
+→ /admin/notifications → "Compose Notification"
+→ Subject: "Annual Dues Reminder — 2025/2026"
+→ Audience: By Dues Status → Unpaid
+→ Audience preview shows: "23 schools will receive this"
+→ Message body written in rich text editor
+→ Choose: Send Now
+→ Delivery report generated: 23 sent / 23 delivered / 0 failed
+→ Notification logged in history with timestamp and sender
 ```
