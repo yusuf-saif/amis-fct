@@ -5,7 +5,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { getCurrentAdminUser } from "@/lib/auth";
 import { generateUniqueResourceSlug } from "@/lib/content";
 import { prisma } from "@/lib/db";
-import { saveContentFile, validateContentFile } from "@/lib/uploads";
+import { deleteContentFileIfUnreferenced, saveContentFile, validateContentFile } from "@/lib/uploads";
 import { resourceFormSchema } from "@/lib/validation/content";
 
 function optionalString(formData: FormData, key: string) {
@@ -29,7 +29,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const intent = String(formData.get("intent") ?? "update");
 
   if (intent === "delete") {
+    const oldFileUrl = resource.fileUrl;
     await prisma.resourceFile.delete({ where: { id } });
+    await deleteContentFileIfUnreferenced(oldFileUrl);
     await writeAuditLog({ actorAdminUserId: adminUser.id, action: "RESOURCE_DELETE", entityType: "ResourceFile", entityId: id });
     return NextResponse.redirect(new URL("/admin/resources?feedback=deleted", request.url), 303);
   }
@@ -73,6 +75,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       fileSizeBytes: upload?.fileSizeBytes ?? resource.fileSizeBytes,
     },
   });
+
+  if (upload?.url && resource.fileUrl !== upload.url) {
+    await deleteContentFileIfUnreferenced(resource.fileUrl);
+  }
 
   await writeAuditLog({ actorAdminUserId: adminUser.id, action: "RESOURCE_UPDATE", entityType: "ResourceFile", entityId: id, metadata: { slug } });
   return NextResponse.redirect(detailUrl(request, id, "updated"), 303);

@@ -5,7 +5,8 @@ import { PageHero } from "@/components/public/page-hero";
 import { SchoolCard } from "@/components/public/school-card";
 import { SchoolDirectoryFilters } from "@/components/public/school-directory-filters";
 import { prisma } from "@/lib/db";
-import { AREA_COUNCILS, getSchoolLevelLabel, isSchoolActiveMember } from "@/lib/schools";
+import { getBadgeVisibilityEnabled, getCurrentDuesSetting, isSchoolActiveMember } from "@/lib/dues";
+import { AREA_COUNCILS, getSchoolLevelLabel } from "@/lib/schools";
 import { schoolDirectoryQuerySchema } from "@/lib/validation/schools";
 
 export default async function SchoolsPage({
@@ -28,6 +29,8 @@ export default async function SchoolsPage({
     ...(filters.areaCouncil ? { areaCouncil: filters.areaCouncil } : {}),
     ...(filters.level ? { level: filters.level } : {}),
   };
+
+  const [currentDuesSetting, badgeVisible] = await Promise.all([getCurrentDuesSetting(), getBadgeVisibilityEnabled()]);
 
   const [schools, totalApproved] = await Promise.all([
     prisma.school.findMany({
@@ -71,7 +74,7 @@ export default async function SchoolsPage({
               {schools.map((school) => (
                 <SchoolCard
                   areaCouncil={school.areaCouncil}
-                  isActiveMember={isSchoolActiveMember(school.duesRecords)}
+                  isActiveMember={isSchoolActiveMember(school.duesRecords, currentDuesSetting?.academicYear ?? null, badgeVisible)}
                   key={school.id}
                   level={getSchoolLevelLabel(school.level)}
                   name={school.name}

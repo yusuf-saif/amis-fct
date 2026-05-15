@@ -2,7 +2,6 @@ import Link from "next/link";
 import { PublishingStatus } from "@prisma/client";
 
 import { Button } from "@/components/public/button";
-import { Card } from "@/components/public/card";
 import { EmptyState } from "@/components/public/empty-state";
 import { PageHero } from "@/components/public/page-hero";
 import { EVENTS_PAGE_SIZE } from "@/lib/content";
@@ -38,14 +37,28 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
             <>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {events.map((event) => (
-                  <Card className="space-y-4" key={event.id} surface="page">
+                  <article
+                    className="group flex flex-col gap-4 rounded-xl border border-surface-line bg-surface-page p-5 shadow-public1 transition duration-150 hover:-translate-y-0.5 hover:shadow-public2 focus-within:shadow-focus"
+                    key={event.id}
+                  >
                     <p className="text-xs font-semibold uppercase tracking-[0.08em] text-brand-green-700">{event.eventType.replace(/_/g, " ")}</p>
-                    <h2 className="text-xl font-semibold text-ink-primary"><Link className="hover:text-brand-green-700" href={`/events/${event.slug}`}>{event.title}</Link></h2>
-                    <p className="text-sm font-medium text-brand-green-700">{event.startAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
-                    <p className="text-sm text-ink-secondary">{event.location}</p>
-                    <p className="text-sm leading-relaxed text-ink-secondary">{event.summary}</p>
-                    <Button href={`/events/${event.slug}`} size="sm">View Event</Button>
-                  </Card>
+                    <div className="flex flex-1 flex-col gap-2">
+                      <h2 className="text-base font-semibold text-ink-primary">
+                        <Link className="transition duration-150 group-hover:text-brand-green-700 focus-visible:outline-none focus-visible:shadow-focus" href={`/events/${event.slug}`}>
+                          {event.title}
+                        </Link>
+                      </h2>
+                      <p className="text-sm font-medium text-brand-green-700">{event.startAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                      <p className="text-sm text-ink-secondary">{event.location}</p>
+                      <p className="line-clamp-3 text-sm leading-relaxed text-ink-secondary">{event.summary}</p>
+                    </div>
+                    <Link
+                      className="text-sm font-medium text-brand-green-700 transition duration-150 hover:text-brand-green-800 hover:underline focus-visible:outline-none focus-visible:shadow-focus"
+                      href={`/events/${event.slug}`}
+                    >
+                      View event →
+                    </Link>
+                  </article>
                 ))}
               </div>
 

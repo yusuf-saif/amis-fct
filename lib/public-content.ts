@@ -7,47 +7,42 @@ export type NavItem = {
 export const publicNavigation: NavItem[] = [
   { label: "Home", href: "/" },
   {
-    label: "About",
+    label: "Activities",
+    href: "/events",
+    children: [
+      { label: "News & Announcements", href: "/news" },
+      { label: "Events & Activities", href: "/events" },
+      { label: "Photo Gallery", href: "/gallery" },
+    ],
+  },
+  {
+    label: "About Us",
     href: "/about",
     children: [
-      { label: "Overview", href: "/about" },
+      { label: "About AMIS FCT", href: "/about" },
       { label: "Leadership", href: "/about/leadership" },
       { label: "Governance", href: "/about/governance" },
       { label: "Membership", href: "/about/membership" },
     ],
   },
-  {
-    label: "Schools",
-    href: "/schools",
-    children: [
-      { label: "Directory", href: "/schools" },
-      { label: "Register Your School", href: "/register" },
-    ],
-  },
-  {
-    label: "News & Events",
-    href: "/news",
-    children: [
-      { label: "News", href: "/news" },
-      { label: "Events", href: "/events" },
-    ],
-  },
+  { label: "Member Schools", href: "/schools" },
   { label: "Resources", href: "/resources" },
-  { label: "Contact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export const mobileNavigation = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
+  { label: "News & Announcements", href: "/news" },
+  { label: "Events & Activities", href: "/events" },
+  { label: "Photo Gallery", href: "/gallery" },
+  { label: "About AMIS FCT", href: "/about" },
   { label: "Leadership", href: "/about/leadership" },
   { label: "Governance", href: "/about/governance" },
   { label: "Membership", href: "/about/membership" },
-  { label: "Schools", href: "/schools" },
+  { label: "Member Schools", href: "/schools" },
   { label: "Register Your School", href: "/register" },
-  { label: "News", href: "/news" },
-  { label: "Events", href: "/events" },
   { label: "Resources", href: "/resources" },
-  { label: "Contact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export const aboutSubNavigation = [
@@ -79,7 +74,7 @@ export const footerColumns = [
     links: [
       { label: "Latest News", href: "/news" },
       { label: "Events", href: "/events" },
-      { label: "Photo Gallery", href: "/about" },
+      { label: "Photo Gallery", href: "/gallery" },
     ],
   },
   {
@@ -89,6 +84,14 @@ export const footerColumns = [
       { label: "Academic Calendar", href: "/resources" },
       { label: "Curriculum Guides", href: "/resources" },
       { label: "Forms", href: "/resources" },
+    ],
+  },
+  {
+    heading: "Get in Touch",
+    links: [
+      { label: "Contact Us", href: "/contact" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
     ],
   },
 ];

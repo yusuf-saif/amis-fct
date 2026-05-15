@@ -5,6 +5,7 @@ import { AdminRole, SchoolStatus } from "@prisma/client";
 import { writeAuditLog } from "@/lib/audit-log";
 import { getCurrentAdminUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { deriveDuesTier, getTierAmount } from "@/lib/dues";
 import { sendTransactionalEmail } from "@/lib/email";
 import { deriveSchoolLevel, generateUniqueSchoolSlug } from "@/lib/schools";
 import { saveSchoolPhoto, validateSchoolPhotoFile } from "@/lib/uploads";
@@ -149,6 +150,30 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         removedAt: new Date(),
       },
     });
+
+    const settings = await prisma.duesTierSetting.findMany();
+    for (const setting of settings) {
+      const tier = deriveDuesTier(updated.arms);
+      const amountDue = getTierAmount(setting, tier);
+      const existingRecord = await prisma.duesRecord.findUnique({
+        where: {
+          schoolId_academicYear: {
+            schoolId: updated.id,
+            academicYear: setting.academicYear,
+          },
+        },
+      });
+
+      if (existingRecord) {
+        await prisma.duesRecord.update({
+          where: { id: existingRecord.id },
+          data: {
+            tier,
+            amountDue,
+          },
+        });
+      }
+    }
 
     await writeAuditLog({
       actorAdminUserId: adminUser.id,

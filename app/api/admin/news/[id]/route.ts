@@ -5,7 +5,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { getCurrentAdminUser } from "@/lib/auth";
 import { buildExcerpt, generateUniqueNewsSlug } from "@/lib/content";
 import { prisma } from "@/lib/db";
-import { saveContentFile, validateContentFile } from "@/lib/uploads";
+import { deleteContentFileIfUnreferenced, saveContentFile, validateContentFile } from "@/lib/uploads";
 import { newsFormSchema } from "@/lib/validation/content";
 
 function optionalString(formData: FormData, key: string) {
@@ -33,7 +33,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const intent = String(formData.get("intent") ?? "update");
 
   if (intent === "delete") {
+    const oldFeaturedImageUrl = post.featuredImageUrl;
+    const oldAttachmentUrl = post.attachmentUrl;
     await prisma.newsPost.delete({ where: { id } });
+    await Promise.all([deleteContentFileIfUnreferenced(oldFeaturedImageUrl), deleteContentFileIfUnreferenced(oldAttachmentUrl)]);
     await writeAuditLog({ actorAdminUserId: adminUser.id, action: "NEWS_DELETE", entityType: "NewsPost", entityId: id });
     return NextResponse.redirect(new URL("/admin/news?feedback=deleted", request.url), 303);
   }
@@ -87,6 +90,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       metaDescription: parsed.data.metaDescription || null,
     },
   });
+
+  if (featuredImageUpload?.url && post.featuredImageUrl && post.featuredImageUrl !== featuredImageUpload.url) {
+    await deleteContentFileIfUnreferenced(post.featuredImageUrl);
+  }
+
+  if (attachmentUpload?.url && post.attachmentUrl && post.attachmentUrl !== attachmentUpload.url) {
+    await deleteContentFileIfUnreferenced(post.attachmentUrl);
+  }
 
   await writeAuditLog({ actorAdminUserId: adminUser.id, action: "NEWS_UPDATE", entityType: "NewsPost", entityId: id, metadata: { slug } });
   return NextResponse.redirect(detailUrl(request, id, "updated"), 303);

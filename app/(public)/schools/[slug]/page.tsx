@@ -8,7 +8,8 @@ import { Button } from "@/components/public/button";
 import { Card } from "@/components/public/card";
 import { PageHero } from "@/components/public/page-hero";
 import { prisma } from "@/lib/db";
-import { getSchoolArmLabel, getSchoolLevelLabel, isSchoolActiveMember } from "@/lib/schools";
+import { getBadgeVisibilityEnabled, getCurrentDuesSetting, isSchoolActiveMember } from "@/lib/dues";
+import { getSchoolArmLabel, getSchoolLevelLabel } from "@/lib/schools";
 
 export default async function SchoolProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -31,7 +32,8 @@ export default async function SchoolProfilePage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  const activeMember = isSchoolActiveMember(school.duesRecords);
+  const [currentDuesSetting, badgeVisible] = await Promise.all([getCurrentDuesSetting(), getBadgeVisibilityEnabled()]);
+  const activeMember = isSchoolActiveMember(school.duesRecords, currentDuesSetting?.academicYear ?? null, badgeVisible);
 
   return (
     <main id="main-content">

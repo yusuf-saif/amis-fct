@@ -5,7 +5,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { getCurrentAdminUser } from "@/lib/auth";
 import { generateUniqueEventSlug } from "@/lib/content";
 import { prisma } from "@/lib/db";
-import { saveContentFile, validateContentFile } from "@/lib/uploads";
+import { deleteContentFileIfUnreferenced, saveContentFile, validateContentFile } from "@/lib/uploads";
 import { eventFormSchema } from "@/lib/validation/content";
 
 function optionalString(formData: FormData, key: string) {
@@ -29,7 +29,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const intent = String(formData.get("intent") ?? "update");
 
   if (intent === "delete") {
+    const oldAttachmentUrl = event.attachmentUrl;
     await prisma.event.delete({ where: { id } });
+    await deleteContentFileIfUnreferenced(oldAttachmentUrl);
     await writeAuditLog({ actorAdminUserId: adminUser.id, action: "EVENT_DELETE", entityType: "Event", entityId: id });
     return NextResponse.redirect(new URL("/admin/events?feedback=deleted", request.url), 303);
   }
@@ -83,6 +85,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       attachmentFileSizeBytes: upload?.fileSizeBytes ?? event.attachmentFileSizeBytes,
     },
   });
+
+  if (upload?.url && event.attachmentUrl && event.attachmentUrl !== upload.url) {
+    await deleteContentFileIfUnreferenced(event.attachmentUrl);
+  }
 
   await writeAuditLog({ actorAdminUserId: adminUser.id, action: "EVENT_UPDATE", entityType: "Event", entityId: id, metadata: { slug } });
   return NextResponse.redirect(detailUrl(request, id, "updated"), 303);

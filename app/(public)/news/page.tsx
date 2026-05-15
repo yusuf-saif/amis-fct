@@ -5,7 +5,6 @@ import { PublishingStatus } from "@prisma/client";
 import { EmptyState } from "@/components/public/empty-state";
 import { PageHero } from "@/components/public/page-hero";
 import { Button } from "@/components/public/button";
-import { Card } from "@/components/public/card";
 import { NEWS_PAGE_SIZE } from "@/lib/content";
 import { prisma } from "@/lib/db";
 import { paginationQuerySchema } from "@/lib/validation/content";
@@ -39,16 +38,34 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
             <>
               <div className="public-grid-cards">
                 {posts.map((post) => (
-                  <Card className="space-y-5" key={post.id} surface="page">
-                    {post.featuredImageUrl ? <Image alt={`${post.title} featured image`} className="h-52 w-full rounded-xl object-cover" height={480} src={post.featuredImageUrl} unoptimized width={720} /> : <div aria-hidden="true" className="public-photo-panel h-52 w-full rounded-xl" />}
-                    <div className="space-y-3">
+                  <article
+                    className="group flex flex-col overflow-hidden rounded-xl border border-surface-line bg-surface-page shadow-public1 transition duration-150 hover:-translate-y-0.5 hover:shadow-public2 focus-within:shadow-focus"
+                    key={post.id}
+                  >
+                    <Link className="block focus-visible:outline-none" href={`/news/${post.slug}`} tabIndex={-1}>
+                      {post.featuredImageUrl ? (
+                        <Image alt={`${post.title} featured image`} className="h-52 w-full object-cover" height={480} src={post.featuredImageUrl} unoptimized width={720} />
+                      ) : (
+                        <div aria-hidden="true" className="public-photo-panel h-52 w-full rounded-none" />
+                      )}
+                    </Link>
+                    <div className="flex flex-1 flex-col gap-3 p-5">
                       <p className="text-xs font-semibold uppercase tracking-[0.08em] text-brand-green-700">{post.category.replace(/_/g, " ")}</p>
-                      <h2 className="text-xl font-semibold text-ink-primary"><Link className="hover:text-brand-green-700" href={`/news/${post.slug}`}>{post.title}</Link></h2>
+                      <h2 className="text-base font-semibold text-ink-primary">
+                        <Link className="transition duration-150 group-hover:text-brand-green-700 focus-visible:outline-none focus-visible:shadow-focus" href={`/news/${post.slug}`}>
+                          {post.title}
+                        </Link>
+                      </h2>
                       <p className="text-sm text-ink-muted">{post.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
-                      <p className="text-sm leading-relaxed text-ink-secondary">{post.excerpt}</p>
+                      <p className="line-clamp-3 text-sm leading-relaxed text-ink-secondary">{post.excerpt}</p>
+                      <Link
+                        className="mt-auto text-sm font-medium text-brand-green-700 transition duration-150 hover:text-brand-green-800 hover:underline focus-visible:outline-none focus-visible:shadow-focus"
+                        href={`/news/${post.slug}`}
+                      >
+                        Read article →
+                      </Link>
                     </div>
-                    <Button href={`/news/${post.slug}`} size="sm">Read Article</Button>
-                  </Card>
+                  </article>
                 ))}
               </div>
 

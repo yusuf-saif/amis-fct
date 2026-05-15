@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PublishingStatus } from "@prisma/client";
 
 import { Badge } from "@/components/public/badge";
@@ -14,8 +15,12 @@ export default async function HomePage() {
     prisma.event.findMany({ where: { status: PublishingStatus.PUBLISHED }, orderBy: { startAt: "asc" }, take: 3 }),
   ]);
 
-  const newsItems = latestNews.length > 0 ? latestNews.map((post) => ({ category: post.category.replace(/_/g, " "), title: post.title, date: post.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) ?? "Unpublished", excerpt: post.excerpt })) : homepageNews;
-  const eventItems = upcomingEvents.length > 0 ? upcomingEvents.map((event) => ({ type: event.eventType.replace(/_/g, " "), title: event.title, date: event.startAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), location: event.location })) : homepageEvents;
+  const newsItems = latestNews.length > 0
+    ? latestNews.map((post) => ({ slug: post.slug, category: post.category.replace(/_/g, " "), title: post.title, date: post.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) ?? "Unpublished", excerpt: post.excerpt }))
+    : homepageNews.map((n) => ({ ...n, slug: null as string | null }));
+  const eventItems = upcomingEvents.length > 0
+    ? upcomingEvents.map((event) => ({ slug: event.slug, type: event.eventType.replace(/_/g, " "), title: event.title, date: event.startAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), location: event.location }))
+    : homepageEvents.map((e) => ({ ...e, slug: null as string | null }));
 
   return (
     <main id="main-content">
@@ -71,15 +76,38 @@ export default async function HomePage() {
           <SectionHeader action={{ href: "/news", label: "All News" }} title="Latest News" />
           <div className="public-grid-cards">
             {newsItems.map((item) => (
-              <Card className="space-y-5" key={item.title} surface="page">
-                <div aria-label={item.title} className="public-photo-panel aspect-[3/2]" role="img" />
-                <div className="space-y-3">
+              <article
+                className="group flex flex-col overflow-hidden rounded-xl border border-surface-line bg-surface-page shadow-public1 transition duration-150 hover:-translate-y-0.5 hover:shadow-public2"
+                key={item.title}
+              >
+                {item.slug ? (
+                  <Link className="block focus-visible:outline-none" href={`/news/${item.slug}`} tabIndex={-1}>
+                    <div aria-hidden="true" className="public-photo-panel aspect-[3/2] rounded-none" />
+                  </Link>
+                ) : (
+                  <div aria-label={item.title} className="public-photo-panel aspect-[3/2] rounded-none" role="img" />
+                )}
+                <div className="flex flex-1 flex-col gap-3 p-5">
                   <Badge>{item.category}</Badge>
-                  <h3 className="text-xl font-semibold text-ink-primary">{item.title}</h3>
+                  <h3 className="text-base font-semibold text-ink-primary">
+                    {item.slug ? (
+                      <Link className="transition duration-150 group-hover:text-brand-green-700 focus-visible:outline-none focus-visible:shadow-focus" href={`/news/${item.slug}`}>
+                        {item.title}
+                      </Link>
+                    ) : item.title}
+                  </h3>
                   <p className="text-sm text-ink-muted">{item.date}</p>
-                  <p className="text-sm leading-relaxed text-ink-secondary">{item.excerpt}</p>
+                  <p className="line-clamp-3 text-sm leading-relaxed text-ink-secondary">{item.excerpt}</p>
+                  {item.slug ? (
+                    <Link
+                      className="mt-auto text-sm font-medium text-brand-green-700 transition duration-150 hover:text-brand-green-800 hover:underline focus-visible:outline-none focus-visible:shadow-focus"
+                      href={`/news/${item.slug}`}
+                    >
+                      Read more →
+                    </Link>
+                  ) : null}
                 </div>
-              </Card>
+              </article>
             ))}
           </div>
         </div>
@@ -90,14 +118,31 @@ export default async function HomePage() {
           <SectionHeader action={{ href: "/events", label: "All Events" }} title="Upcoming Events" />
           <div className="public-grid-cards">
             {eventItems.map((item) => (
-              <Card className="space-y-5" key={item.title}>
+              <article
+                className="group flex flex-col gap-4 rounded-xl border border-surface-line bg-surface-page p-5 shadow-public1 transition duration-150 hover:-translate-y-0.5 hover:shadow-public2"
+                key={item.title}
+              >
                 <Badge tone="gold">{item.type}</Badge>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-semibold text-ink-primary">{item.title}</h3>
+                <div className="flex flex-1 flex-col gap-2">
+                  <h3 className="text-base font-semibold text-ink-primary">
+                    {item.slug ? (
+                      <Link className="transition duration-150 group-hover:text-brand-green-700 focus-visible:outline-none focus-visible:shadow-focus" href={`/events/${item.slug}`}>
+                        {item.title}
+                      </Link>
+                    ) : item.title}
+                  </h3>
                   <p className="text-sm font-medium text-brand-green-700">{item.date}</p>
                   <p className="text-sm text-ink-secondary">{item.location}</p>
                 </div>
-              </Card>
+                {item.slug ? (
+                  <Link
+                    className="text-sm font-medium text-brand-green-700 transition duration-150 hover:text-brand-green-800 hover:underline focus-visible:outline-none focus-visible:shadow-focus"
+                    href={`/events/${item.slug}`}
+                  >
+                    View event →
+                  </Link>
+                ) : null}
+              </article>
             ))}
           </div>
         </div>

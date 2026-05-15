@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { prisma } from "@/lib/db";
 import { resolveSchoolUploadDirectory } from "@/lib/schools";
 
 const allowedMimeTypes = {
@@ -74,11 +75,11 @@ export function validateContentFile(file: File | null, required: boolean, option
   return null;
 }
 
-function resolveContentUploadDirectory(type: "news" | "events" | "resources") {
+function resolveContentUploadDirectory(type: "news" | "events" | "resources" | "notifications" | "gallery" | "enquiries") {
   return path.join(process.cwd(), "uploads", type);
 }
 
-export async function saveContentFile(file: File, type: "news" | "events" | "resources") {
+export async function saveContentFile(file: File, type: "news" | "events" | "resources" | "notifications" | "gallery" | "enquiries") {
   const extension = contentMimeTypes[file.type as keyof typeof contentMimeTypes];
   const directory = resolveContentUploadDirectory(type);
   await mkdir(directory, { recursive: true });
@@ -95,4 +96,45 @@ export async function saveContentFile(file: File, type: "news" | "events" | "res
     fileType: file.type,
     fileSizeBytes: file.size,
   };
+}
+
+function resolveContentFilePathFromUrl(url: string) {
+  const match = url.match(/^\/media\/content\/(news|events|resources|notifications|gallery|enquiries)\/([a-zA-Z0-9-]+\.[a-z0-9]+)$/);
+  if (!match) {
+    return null;
+  }
+
+  const [, type, fileName] = match;
+  return path.join(process.cwd(), "uploads", type, fileName);
+}
+
+export async function deleteContentFileIfUnreferenced(url: string | null | undefined) {
+  if (!url) {
+    return;
+  }
+
+  const [newsFeaturedCount, newsAttachmentCount, eventAttachmentCount, resourceFileCount, notificationAttachmentCount, enquiryAttachmentCount] = await Promise.all([
+    prisma.newsPost.count({ where: { featuredImageUrl: url } }),
+    prisma.newsPost.count({ where: { attachmentUrl: url } }),
+    prisma.event.count({ where: { attachmentUrl: url } }),
+    prisma.resourceFile.count({ where: { fileUrl: url } }),
+    prisma.notification.count({ where: { attachmentUrl: url } }),
+    prisma.contactEnquiry.count({ where: { attachmentUrl: url } }),
+  ]);
+
+  if (newsFeaturedCount + newsAttachmentCount + eventAttachmentCount + resourceFileCount + notificationAttachmentCount + enquiryAttachmentCount > 0) {
+    return;
+  }
+
+  const filePath = resolveContentFilePathFromUrl(url);
+  if (!filePath) {
+    return;
+  }
+
+  try {
+    await access(filePath);
+    await rm(filePath);
+  } catch {
+    // Best-effort cleanup only.
+  }
 }

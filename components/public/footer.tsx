@@ -41,8 +41,8 @@ export function Footer() {
         <div className="flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-emerald-100/75 md:flex-row md:items-center md:justify-between">
           <p>© 2026 Association of Model Islamic Schools, FCT. All rights reserved.</p>
           <div className="flex flex-wrap gap-4">
-            <Link href="/about/governance">Privacy Policy</Link>
-            <Link href="/about/governance">Cookie Policy</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/cookie-consent">Cookie Policy</Link>
             <span>Facebook</span>
             <span>WhatsApp</span>
             <span>Twitter/X</span>

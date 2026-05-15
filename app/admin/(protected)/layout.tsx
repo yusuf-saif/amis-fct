@@ -19,6 +19,7 @@ const navigationByRole: Array<{
   { href: "/admin/schools", label: "Schools", roles: [AdminRole.SUPER_ADMIN] },
   { href: "/admin/dues", label: "Dues", roles: [AdminRole.SUPER_ADMIN] },
   { href: "/admin/notifications", label: "Notifications", roles: [AdminRole.SUPER_ADMIN] },
+  { href: "/admin/enquiries", label: "Enquiries", roles: [AdminRole.SUPER_ADMIN] },
   { href: "/admin/users", label: "Users", roles: [AdminRole.SUPER_ADMIN] },
   { href: "/admin/audit-log", label: "Audit Log", roles: [AdminRole.SUPER_ADMIN] },
 ];

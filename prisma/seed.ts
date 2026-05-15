@@ -84,6 +84,31 @@ async function main() {
     },
   });
 
+  await prisma.duesTierSetting.upsert({
+    where: { academicYear: "2026/2027" },
+    update: {
+      tier1Amount: 50000,
+      tier2Amount: 80000,
+      tier3Amount: 120000,
+      tier4Amount: 160000,
+      isCurrent: true,
+    },
+    create: {
+      academicYear: "2026/2027",
+      tier1Amount: 50000,
+      tier2Amount: 80000,
+      tier3Amount: 120000,
+      tier4Amount: 160000,
+      isCurrent: true,
+    },
+  });
+
+  await prisma.appSetting.upsert({
+    where: { key: "PUBLIC_ACTIVE_MEMBER_BADGE_ENABLED" },
+    update: { value: true },
+    create: { key: "PUBLIC_ACTIVE_MEMBER_BADGE_ENABLED", value: true },
+  });
+
   await prisma.newsPost.upsert({
     where: { slug: "amis-fct-website-rebuild-kickoff" },
     update: {},

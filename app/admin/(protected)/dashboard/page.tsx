@@ -2,19 +2,25 @@ import { AdminRole, DuesStatus, SchoolStatus } from "@prisma/client";
 
 import { requireAdminUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { computeBalance, getCurrentDuesSetting } from "@/lib/dues";
 
 export default async function AdminDashboardPage() {
   const user = await requireAdminUser();
+  const currentDuesSetting = await getCurrentDuesSetting();
 
-  const [pendingSchools, unreadEnquiries, duesPaid, duesPartial, duesUnpaid, newsCount, eventCount] = await Promise.all([
+  const [pendingSchools, unreadEnquiries, duesPaid, duesPartial, duesUnpaid, totalCollected, totalOutstanding, newsCount, eventCount] = await Promise.all([
     prisma.school.count({ where: { status: SchoolStatus.PENDING } }),
     prisma.contactEnquiry.count({ where: { isRead: false } }),
-    prisma.duesRecord.count({ where: { status: DuesStatus.PAID } }),
-    prisma.duesRecord.count({ where: { status: DuesStatus.PARTIAL } }),
-    prisma.duesRecord.count({ where: { status: DuesStatus.UNPAID } }),
+    prisma.duesRecord.count({ where: { status: DuesStatus.PAID, ...(currentDuesSetting ? { academicYear: currentDuesSetting.academicYear } : {}) } }),
+    prisma.duesRecord.count({ where: { status: DuesStatus.PARTIAL, ...(currentDuesSetting ? { academicYear: currentDuesSetting.academicYear } : {}) } }),
+    prisma.duesRecord.count({ where: { status: DuesStatus.UNPAID, ...(currentDuesSetting ? { academicYear: currentDuesSetting.academicYear } : {}) } }),
+    prisma.duesRecord.aggregate({ _sum: { amountPaid: true }, where: currentDuesSetting ? { academicYear: currentDuesSetting.academicYear } : undefined }),
+    prisma.duesRecord.findMany({ select: { amountDue: true, amountPaid: true }, where: currentDuesSetting ? { academicYear: currentDuesSetting.academicYear } : undefined }),
     prisma.newsPost.count(),
     prisma.event.count(),
   ]);
+
+  const outstandingAmount = totalOutstanding.reduce((sum, record) => sum + computeBalance(record.amountDue, record.amountPaid), 0);
 
   const cards = [
     { label: "Pending school applications", value: pendingSchools, tone: "text-amber-700 bg-amber-50 border-amber-200" },
@@ -47,6 +53,7 @@ export default async function AdminDashboardPage() {
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <article className="card-admin">
           <h2 className="text-xl font-semibold text-slate-950">Current dues summary</h2>
+          <p className="mt-2 text-sm text-slate-600">{currentDuesSetting ? currentDuesSetting.academicYear : "No current academic year set"}</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
               <p className="text-sm font-medium">Paid</p>
@@ -59,6 +66,16 @@ export default async function AdminDashboardPage() {
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
               <p className="text-sm font-medium">Unpaid</p>
               <p className="mt-2 text-2xl font-semibold">{duesUnpaid}</p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
+              <p className="text-sm font-medium">Total Collected</p>
+              <p className="mt-2 text-2xl font-semibold">₦{(totalCollected._sum.amountPaid ?? 0).toLocaleString()}</p>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800">
+              <p className="text-sm font-medium">Total Outstanding</p>
+              <p className="mt-2 text-2xl font-semibold">₦{outstandingAmount.toLocaleString()}</p>
             </div>
           </div>
         </article>

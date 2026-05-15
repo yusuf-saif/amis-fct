@@ -1,7 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
+
 import { Badge } from "@/components/public/badge";
-import { Button } from "@/components/public/button";
-import { Card } from "@/components/public/card";
+import { cx } from "@/lib/cx";
 
 type SchoolCardProps = {
   name: string;
@@ -15,26 +16,56 @@ type SchoolCardProps = {
 
 export function SchoolCard({ name, slug, areaCouncil, level, phone, photoUrl, isActiveMember }: SchoolCardProps) {
   return (
-    <Card className="space-y-5" surface="page">
-      {photoUrl ? (
-        <Image alt={`${name} school building`} className="h-48 w-full rounded-xl object-cover" height={384} src={photoUrl} unoptimized width={640} />
-      ) : (
-        <div aria-hidden="true" className="public-photo-panel h-48 w-full rounded-xl" />
-      )}
+    <article className={cx(
+      "group flex flex-col overflow-hidden rounded-xl border border-surface-line bg-surface-page shadow-public1",
+      "transition duration-150 hover:-translate-y-0.5 hover:shadow-public2 focus-within:shadow-focus",
+    )}>
+      <Link
+        aria-label={`View profile for ${name}`}
+        className="block focus-visible:outline-none"
+        href={`/schools/${slug}`}
+        tabIndex={-1}
+      >
+        {photoUrl ? (
+          <Image
+            alt={`${name} school building`}
+            className="h-44 w-full object-cover"
+            height={352}
+            src={photoUrl}
+            unoptimized
+            width={560}
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="public-photo-panel h-44 w-full rounded-none"
+          />
+        )}
+      </Link>
 
-      <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-xl font-semibold text-ink-primary">{name}</h2>
-          {isActiveMember ? <Badge tone="gold">Active Member</Badge> : null}
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-start gap-2">
+            <Link
+              className="text-base font-semibold text-ink-primary transition duration-150 group-hover:text-brand-green-700 focus-visible:shadow-focus focus-visible:outline-none"
+              href={`/schools/${slug}`}
+            >
+              {name}
+            </Link>
+            {isActiveMember ? <Badge tone="gold">Active Member</Badge> : null}
+          </div>
+          <p className="text-sm text-ink-secondary">{areaCouncil}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-brand-green-700">{level}</p>
         </div>
-        <p className="text-sm text-ink-secondary">{areaCouncil}</p>
-        <p className="text-sm font-medium text-brand-green-700">{level}</p>
-        <a aria-label={`Call ${name}: ${phone}`} className="public-link text-sm" href={`tel:${phone}`}>
+
+        <a
+          aria-label={`Call ${name}: ${phone}`}
+          className="mt-auto text-sm font-medium text-brand-green-700 transition hover:text-brand-green-800 hover:underline focus-visible:shadow-focus focus-visible:outline-none"
+          href={`tel:${phone}`}
+        >
           {phone}
         </a>
       </div>
-
-      <Button href={`/schools/${slug}`} size="sm">View Profile</Button>
-    </Card>
+    </article>
   );
 }
