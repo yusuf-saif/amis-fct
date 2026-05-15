@@ -8,6 +8,10 @@ import { generateUniqueGallerySlug } from "@/lib/gallery";
 import { saveContentFile, validateContentFile } from "@/lib/uploads";
 import { galleryAlbumSchema } from "@/lib/validation/gallery";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/admin/gallery", request.url), 303);
+}
+
 export async function POST(request: Request) {
   const adminUser = await requireAdminUser([AdminRole.SUPER_ADMIN, AdminRole.EDITOR]);
   const formData = await request.formData();

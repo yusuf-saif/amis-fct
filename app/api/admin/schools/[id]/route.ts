@@ -11,6 +11,11 @@ import { deriveSchoolLevel, generateUniqueSchoolSlug } from "@/lib/schools";
 import { deleteSchoolPhotoIfUnreferenced, saveSchoolPhoto, validateSchoolPhotoFile } from "@/lib/uploads";
 import { adminMessageSchema, adminRejectSchema, adminSchoolUpdateSchema } from "@/lib/validation/schools";
 
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  return NextResponse.redirect(new URL(`/admin/schools/${id}`, request.url), 303);
+}
+
 function detailUrl(request: Request, id: string, params: Record<string, string>) {
   const url = new URL(`/admin/schools/${id}`, request.url);
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));

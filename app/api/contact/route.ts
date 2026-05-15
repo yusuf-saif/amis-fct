@@ -5,6 +5,10 @@ import { sendTransactionalEmail } from "@/lib/email";
 import { saveContentFile, validateContentFile } from "@/lib/uploads";
 import { contactEnquirySchema } from "@/lib/validation/contact";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/contact", request.url), 303);
+}
+
 export async function POST(request: Request) {
   const formData = await request.formData();
   const parsed = contactEnquirySchema.safeParse({

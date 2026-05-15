@@ -5,6 +5,10 @@ import { deriveSchoolLevel, generateUniqueSchoolSlug } from "@/lib/schools";
 import { saveSchoolPhoto, validateSchoolPhotoFile } from "@/lib/uploads";
 import { schoolRegistrationSchema } from "@/lib/validation/schools";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/register", request.url), 303);
+}
+
 export async function POST(request: Request) {
   const formData = await request.formData();
   const honeypot = String(formData.get("website") ?? "").trim();

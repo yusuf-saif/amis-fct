@@ -10,6 +10,11 @@ import { duesRecordUpdateSchema } from "@/lib/validation/dues";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+export async function GET(request: Request, context: { params: Promise<{ schoolId: string }> }) {
+  const { schoolId } = await context.params;
+  return NextResponse.redirect(new URL(`/admin/dues/${schoolId}`, request.url), 303);
+}
+
 export async function POST(request: Request, context: { params: Promise<{ schoolId: string }> }) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== "SUPER_ADMIN") {

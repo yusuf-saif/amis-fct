@@ -9,6 +9,10 @@ import { duesSettingSchema } from "@/lib/validation/dues";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/admin/dues/settings", request.url), 303);
+}
+
 export async function POST(request: Request) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== "SUPER_ADMIN") {

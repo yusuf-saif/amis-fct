@@ -8,6 +8,11 @@ import { prisma } from "@/lib/db";
 import { deleteContentFileIfUnreferenced, saveContentFile, validateContentFile } from "@/lib/uploads";
 import { resourceFormSchema } from "@/lib/validation/content";
 
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  return NextResponse.redirect(new URL(`/admin/resources/${id}`, request.url), 303);
+}
+
 function optionalString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" && value.trim().length > 0 ? value : undefined;

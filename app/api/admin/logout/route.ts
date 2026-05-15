@@ -4,6 +4,10 @@ import { clearSessionCookie, getCurrentAdminSession } from "@/lib/auth";
 import { writeAuditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/admin/login", request.url), 303);
+}
+
 export async function POST(request: Request) {
   const session = await getCurrentAdminSession();
 

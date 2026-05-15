@@ -8,6 +8,11 @@ import { generateUniqueGallerySlug } from "@/lib/gallery";
 import { deleteContentFileIfUnreferenced, saveContentFile, validateContentFile } from "@/lib/uploads";
 import { galleryAlbumSchema } from "@/lib/validation/gallery";
 
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  return NextResponse.redirect(new URL(`/admin/gallery/${id}`, request.url), 303);
+}
+
 function detailUrl(request: Request, id: string, feedback: string) {
   return new URL(`/admin/gallery/${id}?feedback=${feedback}`, request.url);
 }

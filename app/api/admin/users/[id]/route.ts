@@ -5,6 +5,11 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { getCurrentAdminUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  return NextResponse.redirect(new URL(`/admin/users?user=${id}`, request.url), 303);
+}
+
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== AdminRole.SUPER_ADMIN) return NextResponse.redirect(new URL("/admin/login?error=session_expired", request.url), 303);

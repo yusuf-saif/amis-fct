@@ -7,6 +7,10 @@ import { prisma } from "@/lib/db";
 import { resolveNotificationRecipients, type NotificationAudienceFilters } from "@/lib/notifications";
 import { sendTransactionalEmail } from "@/lib/email";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/admin/notifications", request.url), 303);
+}
+
 export async function POST(request: Request) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== "SUPER_ADMIN") {

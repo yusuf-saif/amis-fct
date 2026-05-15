@@ -5,6 +5,10 @@ import { getCurrentAdminUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { deleteContentFileIfUnreferenced } from "@/lib/uploads";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/admin/enquiries", request.url), 303);
+}
+
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== "SUPER_ADMIN") return NextResponse.redirect(new URL("/admin/login?error=session_expired", request.url), 303);

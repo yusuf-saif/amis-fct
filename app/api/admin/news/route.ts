@@ -8,6 +8,10 @@ import { prisma } from "@/lib/db";
 import { saveContentFile, validateContentFile } from "@/lib/uploads";
 import { newsFormSchema } from "@/lib/validation/content";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/admin/news", request.url), 303);
+}
+
 function optionalString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" && value.trim().length > 0 ? value : undefined;

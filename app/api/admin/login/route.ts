@@ -6,6 +6,10 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { loginSchema } from "@/lib/validation/auth";
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/admin/login", request.url), 303);
+}
+
 export async function POST(request: Request) {
   const formData = await request.formData();
   const parsed = loginSchema.safeParse({
