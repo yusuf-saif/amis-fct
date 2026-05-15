@@ -139,7 +139,7 @@ export function MobileNavigation() {
 
             <div className="mt-auto space-y-3 border-t border-surface-line pt-5">
               <Button ariaLabel="Register your school with AMIS FCT" className="w-full" href="/register">Register Your School</Button>
-              <p className="text-xs leading-relaxed text-ink-muted">Some public content sections are intentionally static in this phase while layout and design foundations are established.</p>
+              <p className="text-xs leading-relaxed text-ink-muted">Use the links above to browse public pages, school information, and official updates.</p>
             </div>
           </div>
         </div>

@@ -103,48 +103,6 @@ export const footerColumns = [
   },
 ];
 
-export const homepageNews = [
-  {
-    category: "Official Circular",
-    title: "AMIS FCT issues transition guidance for the 2026 academic session",
-    date: "14 May 2026",
-    excerpt: "A new circular clarifies reporting timelines, school readiness checks, and documentation expectations for member schools.",
-  },
-  {
-    category: "Achievement",
-    title: "Member schools recognised for excellence in inter-school Qur'an recitation",
-    date: "09 May 2026",
-    excerpt: "The association celebrated outstanding student performance and renewed its commitment to balanced academic and moral formation.",
-  },
-  {
-    category: "General News",
-    title: "AMIS FCT digital rebuild enters structured implementation phase",
-    date: "02 May 2026",
-    excerpt: "The secretariat has approved a phased rebuild intended to improve credibility, communication, and member school visibility.",
-  },
-];
-
-export const homepageEvents = [
-  {
-    type: "Association Meeting",
-    title: "Annual Principals Strategy Meeting",
-    date: "20 July 2026",
-    location: "AMIS FCT Secretariat, Abuja",
-  },
-  {
-    type: "Teacher PD",
-    title: "Islamic Studies curriculum alignment workshop",
-    date: "05 August 2026",
-    location: "Gwagwalada Learning Centre",
-  },
-  {
-    type: "Student Competition",
-    title: "Inter-school quiz and recitation showcase",
-    date: "21 August 2026",
-    location: "Abuja Municipal Hall",
-  },
-];
-
 export const leadershipMembers = [
   {
     name: "Alhaji Musa Ibrahim",

@@ -101,8 +101,7 @@ export default async function SchoolProfilePage({ params }: { params: Promise<{ 
 
               <Card className="space-y-4" surface="green">
                 <h2 className="text-2xl font-semibold text-ink-primary">Location</h2>
-                <div aria-label={`Map placeholder for ${school.name}`} className="public-photo-panel h-56 w-full rounded-xl" role="img" />
-                <p className="text-sm leading-relaxed text-ink-secondary">Map integration will be connected in a later phase. This placeholder preserves the approved profile structure.</p>
+                {school.googleMapUrl ? <iframe className="h-56 w-full rounded-xl border-0" loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={school.googleMapUrl} title={`${school.name} location map`} /> : <p className="text-sm leading-relaxed text-ink-secondary">Location details are available from the school address and contact information above.</p>}
               </Card>
             </div>
           </div>

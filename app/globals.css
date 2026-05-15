@@ -5,6 +5,52 @@
 @tailwind utilities;
 
 @layer base {
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes float-gentle {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    50% {
+      transform: translate3d(0, -8px, 0);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.9;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes shimmer-drift {
+    from {
+      transform: translateX(-35%);
+    }
+
+    to {
+      transform: translateX(135%);
+    }
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -136,6 +182,45 @@
     @apply cursor-pointer transition duration-150 hover:-translate-y-0.5 hover:shadow-public2;
   }
 
+  .motion-rise {
+    animation: fade-up 700ms var(--transition-slow) both;
+  }
+
+  .motion-rise-delay-1 {
+    animation-delay: 90ms;
+  }
+
+  .motion-rise-delay-2 {
+    animation-delay: 180ms;
+  }
+
+  .motion-rise-delay-3 {
+    animation-delay: 270ms;
+  }
+
+  .motion-float {
+    animation: float-gentle 6s ease-in-out infinite;
+  }
+
+  .motion-glow {
+    animation: pulse-glow 4.5s ease-in-out infinite;
+  }
+
+  .surface-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .surface-sheen::before {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.18) 40%, transparent 68%);
+    content: "";
+    pointer-events: none;
+    transform: translateX(-35%);
+    animation: shimmer-drift 7s ease-in-out infinite;
+  }
+
   .card-admin {
     @apply rounded-xl border bg-admin-card p-6;
     border-color: var(--color-admin-surface-line);
@@ -179,6 +264,18 @@
     box-shadow: var(--elevation-2);
   }
 
+  .public-photo-panel::before {
+    position: absolute;
+    inset: -15% auto auto -25%;
+    width: 55%;
+    height: 130%;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.22) 50%, rgba(255, 255, 255, 0) 100%);
+    content: "";
+    pointer-events: none;
+    transform: rotate(14deg);
+    animation: shimmer-drift 8s ease-in-out infinite;
+  }
+
   .public-photo-panel::after {
     position: absolute;
     inset: 0;
@@ -197,6 +294,25 @@
   .public-prose h2,
   .public-prose h3 {
     @apply text-ink-primary;
+  }
+
+  .hover-lift {
+    @apply transition duration-200 hover:-translate-y-1 hover:shadow-public3;
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(10px);
+    pointer-events: none;
+  }
+
+  .hero-orb-green {
+    background: radial-gradient(circle, rgba(111, 216, 152, 0.34) 0%, rgba(111, 216, 152, 0) 72%);
+  }
+
+  .hero-orb-gold {
+    background: radial-gradient(circle, rgba(243, 220, 156, 0.34) 0%, rgba(243, 220, 156, 0) 72%);
   }
 
   .input-base {

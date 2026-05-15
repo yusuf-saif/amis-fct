@@ -1,6 +1,6 @@
 import { Badge } from "@/components/public/badge";
-import { Button } from "@/components/public/button";
 import { Card } from "@/components/public/card";
+import { EmptyState } from "@/components/public/empty-state";
 import { AboutSubnav } from "@/components/public/about-subnav";
 import { PageHero } from "@/components/public/page-hero";
 
@@ -29,20 +29,7 @@ export default function GovernancePage() {
           <div className="space-y-6">
             <Card className="space-y-4" surface="page">
               <h2 className="text-2xl font-semibold text-ink-primary">Official Downloads</h2>
-              <p className="text-sm leading-relaxed text-ink-secondary">Formal documents will be connected to the resources library in a later phase. These placeholders preserve the approved structure and hierarchy now.</p>
-              <div className="grid gap-4 md:grid-cols-2">
-                {[
-                  ["Association Constitution", "PDF placeholder", "2026 edition"],
-                  ["Registration Certificate", "PDF placeholder", "Verified governance document"],
-                ].map(([title, type, meta]) => (
-                  <Card className="space-y-3" key={title}>
-                    <Badge>{type}</Badge>
-                    <h3 className="text-lg font-semibold text-ink-primary">{title}</h3>
-                    <p className="text-sm text-ink-secondary">{meta}</p>
-                    <Button href="/" size="sm" variant="secondary">Download</Button>
-                  </Card>
-                ))}
-              </div>
+              <EmptyState description="Official governance documents will be published here once they are approved for public release." title="No governance documents published" />
             </Card>
           </div>
         </div>

@@ -25,8 +25,8 @@ export default async function AdminDashboardPage() {
   const cards = [
     { label: "Pending school applications", value: pendingSchools, tone: "text-amber-700 bg-amber-50 border-amber-200" },
     { label: "Unread contact enquiries", value: unreadEnquiries, tone: "text-sky-700 bg-sky-50 border-sky-200" },
-    { label: "News posts seeded", value: newsCount, tone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
-    { label: "Events seeded", value: eventCount, tone: "text-violet-700 bg-violet-50 border-violet-200" },
+    { label: "News posts", value: newsCount, tone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+    { label: "Events", value: eventCount, tone: "text-violet-700 bg-violet-50 border-violet-200" },
   ];
 
   return (

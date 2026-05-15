@@ -18,7 +18,7 @@ export function SectionHeader({
   const eyebrowClassName = tone === "inverse" ? "text-brand-gold-100" : "text-brand-green-700";
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div className="motion-rise flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div className="max-w-3xl space-y-2">
         {eyebrow ? <p className={`text-xs font-semibold uppercase tracking-[var(--letter-spacing-caps)] ${eyebrowClassName}`}>{eyebrow}</p> : null}
         <h2 className={`text-h2 font-bold ${titleClassName}`}>{title}</h2>

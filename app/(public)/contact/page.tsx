@@ -31,7 +31,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </div>
 
           <div className="space-y-6">
-            {params.status === "success" ? <StatusBanner description="Your enquiry has been received and a placeholder acknowledgement has been sent." title="Message sent" tone="success" /> : null}
+            {params.status === "success" ? <StatusBanner description="Your enquiry has been received successfully." title="Message sent" tone="success" /> : null}
             {params.status === "invalid" ? <StatusBanner description="Please review the form fields, attachment type, and consent checkbox." title="Unable to send message" tone="error" /> : null}
             <form action="/api/contact" className="card-public space-y-4" encType="multipart/form-data" method="post">
               <FormField id="fullName" label="Full Name" name="fullName" required />

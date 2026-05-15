@@ -18,7 +18,7 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
 
 export const metadata: Metadata = {
   title: "AMIS FCT",
-  description: "AMIS FCT website rebuild foundation and admin platform.",
+  description: "Official website of the Association of Model Islamic Schools, FCT.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

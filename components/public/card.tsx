@@ -7,5 +7,5 @@ export function Card({ children, className, surface = "card" }: { children: Reac
     green: "bg-brand-green-50 border-brand-green-100",
   };
 
-  return <div className={cx("rounded-xl border p-5 shadow-public1 md:p-6", surfaces[surface], className)}>{children}</div>;
+  return <div className={cx("motion-rise hover-lift rounded-xl border p-5 shadow-public1 md:p-6", surfaces[surface], className)}>{children}</div>;
 }
