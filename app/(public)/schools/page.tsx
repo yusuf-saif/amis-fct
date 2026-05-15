@@ -1,6 +1,7 @@
 import { Prisma, SchoolLevel, SchoolStatus } from "@prisma/client";
 
 import { EmptyState } from "@/components/public/empty-state";
+import { ErrorState } from "@/components/public/error-state";
 import { PageHero } from "@/components/public/page-hero";
 import { SchoolCard } from "@/components/public/school-card";
 import { SchoolDirectoryFilters } from "@/components/public/school-directory-filters";
@@ -32,23 +33,34 @@ export default async function SchoolsPage({
     ...(filters.level ? { level: filters.level } : {}),
   };
 
-  const [currentDuesSetting, badgeVisible] = await Promise.all([getCurrentDuesSetting(), getBadgeVisibilityEnabled()]);
+  let currentDuesSetting: Awaited<ReturnType<typeof getCurrentDuesSetting>> = null;
+  let badgeVisible = false;
+  let schools: Array<{ id: string; areaCouncil: string; duesRecords: Array<{ academicYear: string; status: import("@prisma/client").DuesStatus }>; level: SchoolLevel; name: string; phone: string; photoUrl: string | null; slug: string }> = [];
+  let totalApproved = 0;
+  let loadFailed = false;
 
-  const [schools, totalApproved] = await Promise.all([
-    prisma.school.findMany({
-      where,
-      orderBy: { name: "asc" },
-      include: {
-        duesRecords: {
-          select: {
-            academicYear: true,
-            status: true,
+  try {
+    [currentDuesSetting, badgeVisible] = await Promise.all([getCurrentDuesSetting(), getBadgeVisibilityEnabled()]);
+
+    [schools, totalApproved] = await Promise.all([
+      prisma.school.findMany({
+        where,
+        orderBy: { name: "asc" },
+        include: {
+          duesRecords: {
+            select: {
+              academicYear: true,
+              status: true,
+            },
           },
         },
-      },
-    }),
-    prisma.school.count({ where: { status: SchoolStatus.APPROVED } }),
-  ]);
+      }),
+      prisma.school.count({ where: { status: SchoolStatus.APPROVED } }),
+    ]);
+  } catch (error) {
+    loadFailed = true;
+    console.error("Failed to load schools page", error);
+  }
 
   return (
     <main id="main-content">
@@ -69,7 +81,9 @@ export default async function SchoolsPage({
             <p>{AREA_COUNCILS.length} Area Councils supported</p>
           </div>
 
-          {schools.length === 0 ? (
+          {loadFailed ? (
+            <ErrorState description="The school directory is temporarily unavailable while we reconnect public data services." title="Directory unavailable" />
+          ) : schools.length === 0 ? (
             <EmptyState description="No approved schools match your current search or filter combination. Try clearing the filters or using a broader search term." title="No schools found" />
           ) : (
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">

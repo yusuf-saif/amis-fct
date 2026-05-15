@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PublishingStatus } from "@prisma/client";
 
 import { EmptyState } from "@/components/public/empty-state";
+import { ErrorState } from "@/components/public/error-state";
 import { PageHero } from "@/components/public/page-hero";
 import { Button } from "@/components/public/button";
 import { NEWS_PAGE_SIZE } from "@/lib/content";
@@ -17,15 +18,24 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
   const page = parsed.success && parsed.data.page ? parsed.data.page : 1;
   const skip = (page - 1) * NEWS_PAGE_SIZE;
 
-  const [posts, total] = await Promise.all([
-    prisma.newsPost.findMany({
-      where: { status: PublishingStatus.PUBLISHED },
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      skip,
-      take: NEWS_PAGE_SIZE,
-    }),
-    prisma.newsPost.count({ where: { status: PublishingStatus.PUBLISHED } }),
-  ]);
+  let posts: Array<{ id: string; slug: string; featuredImageUrl: string | null; title: string; category: string; publishedAt: Date | null; excerpt: string }> = [];
+  let total = 0;
+  let loadFailed = false;
+
+  try {
+    [posts, total] = await Promise.all([
+      prisma.newsPost.findMany({
+        where: { status: PublishingStatus.PUBLISHED },
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        skip,
+        take: NEWS_PAGE_SIZE,
+      }),
+      prisma.newsPost.count({ where: { status: PublishingStatus.PUBLISHED } }),
+    ]);
+  } catch (error) {
+    loadFailed = true;
+    console.error("Failed to load news page", error);
+  }
 
   const totalPages = Math.max(1, Math.ceil(total / NEWS_PAGE_SIZE));
 
@@ -34,7 +44,9 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
       <PageHero breadcrumbItems={[{ label: "Home", href: "/" }, { label: "News" }]} subtitle="Official circulars, achievements, and public news from the AMIS FCT network." title="News & Announcements" />
       <section className="public-section pt-6">
         <div className="public-container space-y-8">
-          {posts.length === 0 ? (
+          {loadFailed ? (
+            <ErrorState description="News content is temporarily unavailable while we reconnect public data services." title="News unavailable" />
+          ) : posts.length === 0 ? (
             <EmptyState description="Published news articles will appear here once they are made public from the admin dashboard." title="No news available yet" />
           ) : (
             <>

@@ -12,10 +12,17 @@ import { prisma } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [latestNews, upcomingEvents] = await Promise.all([
-    prisma.newsPost.findMany({ where: { status: PublishingStatus.PUBLISHED }, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 3 }),
-    prisma.event.findMany({ where: { status: PublishingStatus.PUBLISHED }, orderBy: { startAt: "asc" }, take: 3 }),
-  ]);
+  let latestNews: Array<{ slug: string; category: string; title: string; publishedAt: Date | null; excerpt: string }> = [];
+  let upcomingEvents: Array<{ slug: string; eventType: string; title: string; startAt: Date; location: string }> = [];
+
+  try {
+    [latestNews, upcomingEvents] = await Promise.all([
+      prisma.newsPost.findMany({ where: { status: PublishingStatus.PUBLISHED }, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 3 }),
+      prisma.event.findMany({ where: { status: PublishingStatus.PUBLISHED }, orderBy: { startAt: "asc" }, take: 3 }),
+    ]);
+  } catch (error) {
+    console.error("Failed to load homepage public content", error);
+  }
 
   const newsItems = latestNews.length > 0
     ? latestNews.map((post) => ({ slug: post.slug, category: post.category.replace(/_/g, " "), title: post.title, date: post.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) ?? "Unpublished", excerpt: post.excerpt }))

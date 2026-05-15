@@ -3,6 +3,7 @@ import { PublishingStatus } from "@prisma/client";
 
 import { Button } from "@/components/public/button";
 import { EmptyState } from "@/components/public/empty-state";
+import { ErrorState } from "@/components/public/error-state";
 import { PageHero } from "@/components/public/page-hero";
 import { EVENTS_PAGE_SIZE } from "@/lib/content";
 import { prisma } from "@/lib/db";
@@ -16,15 +17,24 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
   const page = parsed.success && parsed.data.page ? parsed.data.page : 1;
   const skip = (page - 1) * EVENTS_PAGE_SIZE;
 
-  const [events, total] = await Promise.all([
-    prisma.event.findMany({
-      where: { status: PublishingStatus.PUBLISHED },
-      orderBy: { startAt: "asc" },
-      skip,
-      take: EVENTS_PAGE_SIZE,
-    }),
-    prisma.event.count({ where: { status: PublishingStatus.PUBLISHED } }),
-  ]);
+  let events: Array<{ id: string; slug: string; eventType: string; title: string; startAt: Date; location: string; summary: string }> = [];
+  let total = 0;
+  let loadFailed = false;
+
+  try {
+    [events, total] = await Promise.all([
+      prisma.event.findMany({
+        where: { status: PublishingStatus.PUBLISHED },
+        orderBy: { startAt: "asc" },
+        skip,
+        take: EVENTS_PAGE_SIZE,
+      }),
+      prisma.event.count({ where: { status: PublishingStatus.PUBLISHED } }),
+    ]);
+  } catch (error) {
+    loadFailed = true;
+    console.error("Failed to load events page", error);
+  }
 
   const totalPages = Math.max(1, Math.ceil(total / EVENTS_PAGE_SIZE));
 
@@ -33,7 +43,9 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
       <PageHero breadcrumbItems={[{ label: "Home", href: "/" }, { label: "Events" }]} subtitle="Upcoming meetings, workshops, student activities, and association programmes across the FCT." title="Events" />
       <section className="public-section pt-6">
         <div className="public-container space-y-8">
-          {events.length === 0 ? (
+          {loadFailed ? (
+            <ErrorState description="Events are temporarily unavailable while we reconnect public data services." title="Events unavailable" />
+          ) : events.length === 0 ? (
             <EmptyState description="Upcoming events will appear here when they are published from the admin dashboard." title="No upcoming events" />
           ) : (
             <>

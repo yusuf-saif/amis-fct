@@ -2,23 +2,34 @@ import { PublishingStatus } from "@prisma/client";
 
 import { Card } from "@/components/public/card";
 import { EmptyState } from "@/components/public/empty-state";
+import { ErrorState } from "@/components/public/error-state";
 import { PageHero } from "@/components/public/page-hero";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function ResourcesPage() {
-  const resources = await prisma.resourceFile.findMany({
-    where: { status: PublishingStatus.PUBLISHED },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-  });
+  let resources: Array<{ id: string; category: string; title: string; description: string | null; fileType: string; fileSizeBytes: number; fileUrl: string }> = [];
+  let loadFailed = false;
+
+  try {
+    resources = await prisma.resourceFile.findMany({
+      where: { status: PublishingStatus.PUBLISHED },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    });
+  } catch (error) {
+    loadFailed = true;
+    console.error("Failed to load resources page", error);
+  }
 
   return (
     <main id="main-content">
       <PageHero breadcrumbItems={[{ label: "Home", href: "/" }, { label: "Resources" }]} subtitle="Download active circulars, calendars, guidance documents, and reference materials." title="Resources" />
       <section className="public-section pt-6">
         <div className="public-container space-y-6">
-          {resources.length === 0 ? (
+          {loadFailed ? (
+            <ErrorState description="Resources are temporarily unavailable while we reconnect public data services." title="Resources unavailable" />
+          ) : resources.length === 0 ? (
             <EmptyState description="Active resources will appear here when they are published from the admin dashboard." title="No resources available" />
           ) : (
             resources.map((resource) => (
