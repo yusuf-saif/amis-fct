@@ -8,7 +8,7 @@ import { prisma } from "@/lib/db";
 import { deriveDuesTier, getTierAmount } from "@/lib/dues";
 import { sendTransactionalEmail } from "@/lib/email";
 import { deriveSchoolLevel, generateUniqueSchoolSlug } from "@/lib/schools";
-import { saveSchoolPhoto, validateSchoolPhotoFile } from "@/lib/uploads";
+import { deleteSchoolPhotoIfUnreferenced, saveSchoolPhoto, validateSchoolPhotoFile } from "@/lib/uploads";
 import { adminMessageSchema, adminRejectSchema, adminSchoolUpdateSchema } from "@/lib/validation/schools";
 
 function detailUrl(request: Request, id: string, params: Record<string, string>) {
@@ -238,6 +238,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         photoUrl: nextPhotoUrl,
       },
     });
+
+    if (photo && photo.size > 0 && school.photoUrl && school.photoUrl !== nextPhotoUrl) {
+      await deleteSchoolPhotoIfUnreferenced(school.photoUrl);
+    }
 
     await writeAuditLog({
       actorAdminUserId: adminUser.id,

@@ -13,6 +13,7 @@ export function MobileNavigation() {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setOpen(false);
@@ -31,6 +32,32 @@ export function MobileNavigation() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !drawerRef.current) {
+        return;
+      }
+
+      const focusable = Array.from(
+        drawerRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("hidden"));
+
+      if (focusable.length === 0) {
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
@@ -65,6 +92,7 @@ export function MobileNavigation() {
             id="mobile-nav-menu"
             role="dialog"
             onClick={(event) => event.stopPropagation()}
+            ref={drawerRef}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -110,7 +138,7 @@ export function MobileNavigation() {
             </nav>
 
             <div className="mt-auto space-y-3 border-t border-surface-line pt-5">
-              <Button ariaLabel="Register your school with AMIS FCT" className="w-full" href="/about/membership">Register Your School</Button>
+              <Button ariaLabel="Register your school with AMIS FCT" className="w-full" href="/register">Register Your School</Button>
               <p className="text-xs leading-relaxed text-ink-muted">Some public content sections are intentionally static in this phase while layout and design foundations are established.</p>
             </div>
           </div>

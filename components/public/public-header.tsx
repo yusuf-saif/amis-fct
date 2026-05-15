@@ -26,7 +26,7 @@ export function PublicHeader() {
           <DesktopNavigation items={publicNavigation} />
           <Button
             ariaLabel="Register your school with AMIS FCT"
-            className="hidden shrink-0 lg:inline-flex"
+            className="hidden shrink-0 md:inline-flex"
             href="/register"
             size="sm"
           >

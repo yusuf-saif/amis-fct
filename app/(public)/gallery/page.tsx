@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/public/empty-state";
 import { PageHero } from "@/components/public/page-hero";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function GalleryPage() {
   const albums = await prisma.galleryAlbum.findMany({ where: { status: PublishingStatus.PUBLISHED }, orderBy: { eventDate: "desc" } });
 

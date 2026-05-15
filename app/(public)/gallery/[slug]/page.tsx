@@ -6,6 +6,8 @@ import { GalleryLightbox } from "@/components/public/gallery-lightbox";
 import { PageHero } from "@/components/public/page-hero";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function GalleryAlbumPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const album = await prisma.galleryAlbum.findFirst({ where: { slug, status: PublishingStatus.PUBLISHED } });

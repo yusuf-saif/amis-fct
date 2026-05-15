@@ -10,7 +10,7 @@ export function DesktopNavigation({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Main navigation" className="hidden items-center gap-1 lg:flex">
+    <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
       {items.map((item) => {
         const isActive = item.href ? pathname === item.href || pathname.startsWith(`${item.href}/`) : false;
 

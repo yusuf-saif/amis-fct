@@ -8,6 +8,8 @@ import { EVENTS_PAGE_SIZE } from "@/lib/content";
 import { prisma } from "@/lib/db";
 import { paginationQuerySchema } from "@/lib/validation/content";
 
+export const dynamic = "force-dynamic";
+
 export default async function EventsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const params = await searchParams;
   const parsed = paginationQuerySchema.safeParse(params);

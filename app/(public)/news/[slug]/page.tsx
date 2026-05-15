@@ -8,6 +8,8 @@ import { Button } from "@/components/public/button";
 import { Card } from "@/components/public/card";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await prisma.newsPost.findFirst({ where: { slug, status: PublishingStatus.PUBLISHED } });

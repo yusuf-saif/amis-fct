@@ -4,6 +4,7 @@ import path from "node:path";
 import { notFound } from "next/navigation";
 
 import { resolveSchoolUploadDirectory } from "@/lib/schools";
+import { buildSchoolStorageKey, readObjectByKey } from "@/lib/storage";
 
 const mimeTypes: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -16,6 +17,16 @@ export async function GET(_: Request, context: { params: Promise<{ file: string 
 
   if (!/^[a-zA-Z0-9-]+\.(jpg|jpeg|png)$/.test(file)) {
     notFound();
+  }
+
+  const object = await readObjectByKey(buildSchoolStorageKey(file));
+  if (object) {
+    return new Response(object.body, {
+      headers: {
+        "Content-Type": object.contentType,
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
   }
 
   const filePath = path.join(resolveSchoolUploadDirectory(), file);

@@ -4,6 +4,14 @@ import path from "node:path";
 
 import { prisma } from "@/lib/db";
 import { resolveSchoolUploadDirectory } from "@/lib/schools";
+import {
+  buildContentStorageKey,
+  buildSchoolStorageKey,
+  deleteObjectByKey,
+  isObjectStorageEnabled,
+  resolveObjectKeyFromUrl,
+  uploadObject,
+} from "@/lib/storage";
 
 const allowedMimeTypes = {
   "image/jpeg": ".jpg",
@@ -17,6 +25,8 @@ const contentMimeTypes = {
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
   "application/msword": ".doc",
 } as const;
+
+type ContentType = "news" | "events" | "resources" | "notifications" | "gallery" | "enquiries";
 
 export function validateSchoolPhotoFile(file: File | null, required: boolean) {
   if (!file || file.size === 0) {
@@ -40,13 +50,17 @@ export function validateSchoolPhotoFile(file: File | null, required: boolean) {
 
 export async function saveSchoolPhoto(file: File) {
   const extension = allowedMimeTypes[file.type as keyof typeof allowedMimeTypes];
+  const filename = `${randomUUID()}${extension}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (isObjectStorageEnabled()) {
+    return uploadObject(buildSchoolStorageKey(filename), buffer, file.type);
+  }
+
   const directory = resolveSchoolUploadDirectory();
   await mkdir(directory, { recursive: true });
 
-  const filename = `${randomUUID()}${extension}`;
   const outputPath = path.join(directory, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
-
   await writeFile(outputPath, buffer);
 
   return `/media/schools/${filename}`;
@@ -75,19 +89,30 @@ export function validateContentFile(file: File | null, required: boolean, option
   return null;
 }
 
-function resolveContentUploadDirectory(type: "news" | "events" | "resources" | "notifications" | "gallery" | "enquiries") {
+function resolveContentUploadDirectory(type: ContentType) {
   return path.join(process.cwd(), "uploads", type);
 }
 
-export async function saveContentFile(file: File, type: "news" | "events" | "resources" | "notifications" | "gallery" | "enquiries") {
+export async function saveContentFile(file: File, type: ContentType) {
   const extension = contentMimeTypes[file.type as keyof typeof contentMimeTypes];
+  const filename = `${randomUUID()}${extension}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (isObjectStorageEnabled()) {
+    const url = await uploadObject(buildContentStorageKey(type, filename), buffer, file.type);
+
+    return {
+      url,
+      fileName: filename,
+      fileType: file.type,
+      fileSizeBytes: file.size,
+    };
+  }
+
   const directory = resolveContentUploadDirectory(type);
   await mkdir(directory, { recursive: true });
 
-  const filename = `${randomUUID()}${extension}`;
   const outputPath = path.join(directory, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
-
   await writeFile(outputPath, buffer);
 
   return {
@@ -108,25 +133,16 @@ function resolveContentFilePathFromUrl(url: string) {
   return path.join(process.cwd(), "uploads", type, fileName);
 }
 
-export async function deleteContentFileIfUnreferenced(url: string | null | undefined) {
-  if (!url) {
-    return;
+function resolveSchoolFilePathFromUrl(url: string) {
+  const match = url.match(/^\/media\/schools\/([a-zA-Z0-9-]+\.[a-z0-9]+)$/);
+  if (!match) {
+    return null;
   }
 
-  const [newsFeaturedCount, newsAttachmentCount, eventAttachmentCount, resourceFileCount, notificationAttachmentCount, enquiryAttachmentCount] = await Promise.all([
-    prisma.newsPost.count({ where: { featuredImageUrl: url } }),
-    prisma.newsPost.count({ where: { attachmentUrl: url } }),
-    prisma.event.count({ where: { attachmentUrl: url } }),
-    prisma.resourceFile.count({ where: { fileUrl: url } }),
-    prisma.notification.count({ where: { attachmentUrl: url } }),
-    prisma.contactEnquiry.count({ where: { attachmentUrl: url } }),
-  ]);
+  return path.join(resolveSchoolUploadDirectory(), match[1]);
+}
 
-  if (newsFeaturedCount + newsAttachmentCount + eventAttachmentCount + resourceFileCount + notificationAttachmentCount + enquiryAttachmentCount > 0) {
-    return;
-  }
-
-  const filePath = resolveContentFilePathFromUrl(url);
+async function deleteLocalFileIfPresent(filePath: string | null) {
   if (!filePath) {
     return;
   }
@@ -137,4 +153,55 @@ export async function deleteContentFileIfUnreferenced(url: string | null | undef
   } catch {
     // Best-effort cleanup only.
   }
+}
+
+async function deleteFileByUrl(url: string, mode: "content" | "schools") {
+  const objectKey = resolveObjectKeyFromUrl(url);
+  if (objectKey) {
+    await deleteObjectByKey(objectKey);
+    return;
+  }
+
+  await deleteLocalFileIfPresent(mode === "content" ? resolveContentFilePathFromUrl(url) : resolveSchoolFilePathFromUrl(url));
+}
+
+export async function deleteSchoolPhotoIfUnreferenced(url: string | null | undefined) {
+  if (!url) {
+    return;
+  }
+
+  const schoolCount = await prisma.school.count({ where: { photoUrl: url } });
+  if (schoolCount > 0) {
+    return;
+  }
+
+  await deleteFileByUrl(url, "schools");
+}
+
+export async function deleteContentFileIfUnreferenced(url: string | null | undefined) {
+  if (!url) {
+    return;
+  }
+
+  const [newsFeaturedCount, newsAttachmentCount, eventAttachmentCount, resourceFileCount, notificationAttachmentCount, enquiryAttachmentCount, galleryCoverCount, galleryAlbums] = await Promise.all([
+    prisma.newsPost.count({ where: { featuredImageUrl: url } }),
+    prisma.newsPost.count({ where: { attachmentUrl: url } }),
+    prisma.event.count({ where: { attachmentUrl: url } }),
+    prisma.resourceFile.count({ where: { fileUrl: url } }),
+    prisma.notification.count({ where: { attachmentUrl: url } }),
+    prisma.contactEnquiry.count({ where: { attachmentUrl: url } }),
+    prisma.galleryAlbum.count({ where: { coverImageUrl: url } }),
+    prisma.galleryAlbum.findMany({ select: { photoUrls: true } }),
+  ]);
+
+  const galleryPhotoCount = galleryAlbums.reduce((count, album) => {
+    const photoUrls = Array.isArray(album.photoUrls) ? (album.photoUrls as string[]) : [];
+    return count + (photoUrls.includes(url) ? 1 : 0);
+  }, 0);
+
+  if (newsFeaturedCount + newsAttachmentCount + eventAttachmentCount + resourceFileCount + notificationAttachmentCount + enquiryAttachmentCount + galleryCoverCount + galleryPhotoCount > 0) {
+    return;
+  }
+
+  await deleteFileByUrl(url, "content");
 }

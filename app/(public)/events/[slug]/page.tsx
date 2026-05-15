@@ -7,6 +7,8 @@ import { PageHero } from "@/components/public/page-hero";
 import { RichTextContent } from "@/components/public/rich-text-content";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const event = await prisma.event.findFirst({ where: { slug, status: PublishingStatus.PUBLISHED } });

@@ -3,7 +3,9 @@ import path from "node:path";
 
 import { notFound } from "next/navigation";
 
-const allowedTypes = new Set(["news", "events", "resources"]);
+import { buildContentStorageKey, readObjectByKey } from "@/lib/storage";
+
+const allowedTypes = new Set(["news", "events", "resources", "notifications", "gallery", "enquiries"]);
 const mimeTypes: Record<string, string> = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
@@ -18,6 +20,16 @@ export async function GET(_: Request, context: { params: Promise<{ type: string;
 
   if (!allowedTypes.has(type) || !/^[a-zA-Z0-9-]+\.(jpg|jpeg|png|pdf|doc|docx)$/.test(file)) {
     notFound();
+  }
+
+  const object = await readObjectByKey(buildContentStorageKey(type as "news" | "events" | "resources" | "notifications" | "gallery" | "enquiries", file));
+  if (object) {
+    return new Response(object.body, {
+      headers: {
+        "Content-Type": object.contentType,
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
   }
 
   const filePath = path.join(process.cwd(), "uploads", type, file);

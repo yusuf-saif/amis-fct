@@ -11,6 +11,8 @@ import { prisma } from "@/lib/db";
 import { getBadgeVisibilityEnabled, getCurrentDuesSetting, isSchoolActiveMember } from "@/lib/dues";
 import { getSchoolArmLabel, getSchoolLevelLabel } from "@/lib/schools";
 
+export const dynamic = "force-dynamic";
+
 export default async function SchoolProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const school = await prisma.school.findFirst({

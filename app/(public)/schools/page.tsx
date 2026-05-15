@@ -9,6 +9,8 @@ import { getBadgeVisibilityEnabled, getCurrentDuesSetting, isSchoolActiveMember 
 import { AREA_COUNCILS, getSchoolLevelLabel } from "@/lib/schools";
 import { schoolDirectoryQuerySchema } from "@/lib/validation/schools";
 
+export const dynamic = "force-dynamic";
+
 export default async function SchoolsPage({
   searchParams,
 }: {

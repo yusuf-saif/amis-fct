@@ -7,7 +7,7 @@ export type NavItem = {
 export const publicNavigation: NavItem[] = [
   { label: "Home", href: "/" },
   {
-    label: "Activities",
+    label: "News & Media",
     href: "/events",
     children: [
       { label: "News & Announcements", href: "/news" },
@@ -16,7 +16,7 @@ export const publicNavigation: NavItem[] = [
     ],
   },
   {
-    label: "About Us",
+    label: "About",
     href: "/about",
     children: [
       { label: "About AMIS FCT", href: "/about" },
@@ -25,7 +25,14 @@ export const publicNavigation: NavItem[] = [
       { label: "Membership", href: "/about/membership" },
     ],
   },
-  { label: "Member Schools", href: "/schools" },
+  {
+    label: "Schools",
+    href: "/schools",
+    children: [
+      { label: "School Directory", href: "/schools" },
+      { label: "Register Your School", href: "/register" },
+    ],
+  },
   { label: "Resources", href: "/resources" },
   { label: "Contact", href: "/contact" },
 ];

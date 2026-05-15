@@ -9,6 +9,8 @@ import { SectionHeader } from "@/components/public/section-header";
 import { homepageEvents, homepageNews } from "@/lib/public-content";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [latestNews, upcomingEvents] = await Promise.all([
     prisma.newsPost.findMany({ where: { status: PublishingStatus.PUBLISHED }, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 3 }),

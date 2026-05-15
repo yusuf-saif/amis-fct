@@ -5,6 +5,8 @@ import { EmptyState } from "@/components/public/empty-state";
 import { PageHero } from "@/components/public/page-hero";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function ResourcesPage() {
   const resources = await prisma.resourceFile.findMany({
     where: { status: PublishingStatus.PUBLISHED },
