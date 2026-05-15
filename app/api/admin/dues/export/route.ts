@@ -8,6 +8,9 @@ import { prisma } from "@/lib/db";
 import { getSchoolArmLabel } from "@/lib/schools";
 import { duesFilterSchema } from "@/lib/validation/dues";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== "SUPER_ADMIN") {

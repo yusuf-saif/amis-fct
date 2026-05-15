@@ -6,6 +6,9 @@ import { setCurrentAcademicYear } from "@/lib/dues";
 import { prisma } from "@/lib/db";
 import { duesSettingSchema } from "@/lib/validation/dues";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== "SUPER_ADMIN") {

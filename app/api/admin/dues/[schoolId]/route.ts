@@ -7,6 +7,9 @@ import { getCurrentAdminUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { duesRecordUpdateSchema } from "@/lib/validation/dues";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request, context: { params: Promise<{ schoolId: string }> }) {
   const adminUser = await getCurrentAdminUser();
   if (!adminUser || adminUser.role !== "SUPER_ADMIN") {
