@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server";
 
-import { addMinutes } from "@/lib/utils";
-import { createAdminSession, setSessionCookie, verifyPassword } from "@/lib/auth";
-import { writeAuditLog } from "@/lib/audit-log";
-import { prisma } from "@/lib/db";
 import { loginSchema } from "@/lib/validation/auth";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   return NextResponse.redirect(new URL("/admin/login", request.url), 303);
 }
 
 export async function POST(request: Request) {
+  const [{ createAdminSession, setSessionCookie, verifyPassword }, { writeAuditLog }, { prisma }, { addMinutes }] = await Promise.all([
+    import("@/lib/auth"),
+    import("@/lib/audit-log"),
+    import("@/lib/db"),
+    import("@/lib/utils"),
+  ]);
+
   const formData = await request.formData();
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
